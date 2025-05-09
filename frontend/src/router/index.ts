@@ -7,6 +7,8 @@ import Perfil from '../views/Perfil.vue';
 import Login from '../views/Login.vue';
 import Register from '../views/Register.vue';
 import subirReceta from '../components/subirReceta.vue';
+import RecetaDetalle from '../views/RecetaDetalle.vue';
+
 
 const routes = [
   {
@@ -54,6 +56,11 @@ const routes = [
     component: subirReceta,
     meta: { title: 'Subir Receta' }
   },
+  {
+    path: '/receta/:id',  // Ruta dinámica para detalles de la receta
+    name: 'RecetaDetalle',
+    component: RecetaDetalle
+  }
 ];
 
 const router = createRouter({

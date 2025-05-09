@@ -2,8 +2,10 @@ import { createApp } from 'vue';
 import App from './App.vue';
 import { createVuetify } from 'vuetify';
 import 'vuetify/styles';
-import router from './router'; // Importas el router que ya tienes configurado
-import './assets/styles.css'; // Importa el CSS global
+import router from './router';
+import './assets/styles.css'; 
+import './assets/variables.css';
+
 
 const vuetify = createVuetify(); // Instancia Vuetify
 

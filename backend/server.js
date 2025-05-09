@@ -9,7 +9,7 @@ const app = express();
 
 // Configurar middlewares
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
 
 // Conexión a MongoDB utilizando la URI desde el archivo .env
 mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })

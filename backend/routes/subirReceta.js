@@ -5,31 +5,39 @@ const { verifyToken, requireAdmin } = require('../middleware/authMiddleware');
 const { ObjectId } = require('mongoose').Types;
 
 // Crear receta
-router.post('/', async (req, res) => {
-    try {
-        const { name, description, image } = req.body;
+    router.post('/', async (req, res) => {
+        try {
+            const { name, description, image, ingredientesTexto, preparation } = req.body;
 
-        // Validar que todos los campos estén presentes
-        if (!name || !description || !image) {
-            return res.status(400).json({ message: 'Todos los campos son requeridos' });
+            // Validar que todos los campos estén presentes
+            if (!name || !description || !image || !ingredientesTexto) {
+                return res.status(400).json({ message: 'Todos los campos son requeridos' });
+            }
+
+            // Convertir los ingredientes de texto a un arreglo de strings
+            const ingredientes = ingredientesTexto.split(',').map(i => i.trim()).filter(i => i !== '');
+
+            // Verificar que los ingredientes se están procesando correctamente
+            console.log('Ingredientes procesados:', ingredientes);
+
+            // Crear la receta
+            const newRecipe = new Recipe({
+                name,
+                description,
+                image,
+                ingredients: ingredientes, // Guardar los ingredientes como un arreglo de strings
+                preparation // Guardar el texto completo de preparación
+            });
+
+            // Guardar la receta en la base de datos
+            await newRecipe.save();
+
+            return res.status(201).json(newRecipe);
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({ message: 'Error al crear la receta' });
         }
-
-        // Crear la receta
-        const newRecipe = new Recipe({
-            name,
-            description,
-            image
-        });
-
-        // Guardar la receta en la base de datos
-        await newRecipe.save();
-
-        return res.status(201).json(newRecipe);
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({ message: 'Error al crear la receta' });
-    }
-});
+    });
 
 // Obtener todas las recetas
 router.get('/', async (req, res) => {
@@ -43,13 +51,13 @@ router.get('/', async (req, res) => {
 });
 
 // Actualizar receta
-router.put('/receta/:id', verifyToken, requireAdmin, async (req, res) => {
-    const { name, description, image } = req.body;
+router.put('/:id', verifyToken, requireAdmin, async (req, res) => {
+    const { name, description, image, preparation } = req.body;
 
     try {
         const receta = await Recipe.findByIdAndUpdate(  // Usar 'Recipe' aquí
             req.params.id,
-            { name, description, image },
+            { name, description, image, preparation }, // Incluir 'preparation' aquí también
             { new: true }
         );
 
@@ -64,8 +72,8 @@ router.put('/receta/:id', verifyToken, requireAdmin, async (req, res) => {
     }
 });
 
-//Eliminar receta
-router.delete('/receta/:id', verifyToken, requireAdmin, async (req, res) => {
+// Eliminar receta
+router.delete('/:id', verifyToken, requireAdmin, async (req, res) => {
     const recetaId = req.params.id;
 
     // Verificar si el ID es válido
@@ -84,6 +92,27 @@ router.delete('/receta/:id', verifyToken, requireAdmin, async (req, res) => {
     } catch (error) {
         console.error('Error al eliminar la receta:', error);
         res.status(500).json({ mensaje: 'Error al eliminar la receta' });
+    }
+});
+
+// Obtener una receta por ID
+router.get('/:id', async (req, res) => {
+    const recetaId = req.params.id;
+
+    // Verifica si el ID es válido
+    if (!ObjectId.isValid(recetaId)) {
+        return res.status(400).json({ message: 'ID inválido' });
+    }
+
+    try {
+        const receta = await Recipe.findById(recetaId);
+        if (!receta) {
+            return res.status(404).json({ message: 'Receta no encontrada' });
+        }
+        res.json(receta);
+    } catch (error) {
+        console.error('Error al obtener la receta:', error);
+        res.status(500).json({ message: 'Error al obtener la receta' });
     }
 });
 

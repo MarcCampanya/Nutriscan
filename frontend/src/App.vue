@@ -1,6 +1,6 @@
 <template>
   <Header />
-  <router-view></router-view>  <!-- Aquí se renderizan las vistas -->
+  <router-view></router-view>
 </template>
 
 <script lang="ts">
