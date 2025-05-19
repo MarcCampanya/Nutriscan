@@ -3,7 +3,10 @@
   <header class="top-bar">
     <div class="left-section">
       <button class="menu-toggle">☰</button>
-      <div class="logo">NutriScan</div>
+      <div class="logo">
+        <router-link to="/">NutriScan</router-link>
+      </div>
+
     </div>
     <div class="auth-buttons">
       <!-- Mostrar "Iniciar sesión" o "Cerrar sesión" según el estado de autenticación -->
@@ -12,16 +15,41 @@
     </div>
   </header>
 
-  <!-- Menú lateral -->
   <nav class="side-menu">
     <ul>
-      <li><router-link to="/" @click="closeMenu">Home</router-link></li>
-      <li><router-link to="/scanner" @click="closeMenu">Scanner</router-link></li>
-      <li><router-link to="/recetas" @click="closeMenu">Recetas</router-link></li>
-      <li><router-link to="/perfil" @click="closeMenu">Perfil</router-link></li>
-      <li><router-link to="/historial" @click="closeMenu">Historial</router-link></li>
+      <li>
+        <router-link to="/" @click="closeMenu">
+          <img src="@/assets/img/menu-home.svg" class="menu-icon" alt="Inicio" />
+          Inicio
+        </router-link>
+      </li>
+      <li>
+        <router-link to="/scanner" @click="closeMenu">
+          <img src="@/assets/img/menu-scanner.svg" class="menu-icon" alt="Scanner" />
+          Scanner
+        </router-link>
+      </li>
+      <li>
+        <router-link to="/recetas" @click="closeMenu">
+          <img src="@/assets/img/menu-recetas.svg" class="menu-icon" alt="Recetas" />
+          Recetas
+        </router-link>
+      </li>
+      <li>
+        <router-link to="/perfil" @click="closeMenu">
+          <img src="@/assets/img/menu-profile.svg" class="menu-icon" alt="Perfil" />
+          Perfil
+        </router-link>
+      </li>
+      <li>
+        <router-link to="/historial" @click="closeMenu">
+          <img src="@/assets/img/menu-historial.svg" class="menu-icon" alt="Historial" />
+          Historial
+        </router-link>
+      </li>
     </ul>
   </nav>
+
 </template>
 
 <script lang="ts">
@@ -74,89 +102,106 @@ export default defineComponent({
 });
 </script>
 <style scoped>
-/* Estilos para el header y la barra de navegación */
+/* Barra superior */
 .top-bar {
-  background-color: #027313; /* Verde claro */
-  color: #F2F2F2; /* Gris claro */
-  padding: 15px 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-family: 'Segoe UI', sans-serif;
+  background-color: #055902;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.left-section {
+.top-bar .left-section {
   display: flex;
   align-items: center;
+  gap: 1rem;
 }
 
-.menu-toggle {
+.top-bar .logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.top-bar .menu-toggle {
+  font-size: 1.5rem;
   background: none;
   border: none;
-  color: #F2F2F2; /* Gris claro */
-  font-size: 30px;
+  color: white;
   cursor: pointer;
-  margin-right: 20px;
-}
-
-.logo {
-  font-size: 24px;
-  font-weight: bold;
-  color: #F2F2F2; /* Gris claro */
 }
 
 .auth-buttons button {
-  background-color: #055902; /* Verde medio */
-  color: #F2F2F2; /* Gris claro */
+  background-color: #428C62;
+  color: white;
   border: none;
-  padding: 8px 20px;
-  font-size: 16px;
-  border-radius: 5px;
+  padding: 0.5rem 1rem;
+  margin-left: 0.5rem;
+  border-radius: 6px;
   cursor: pointer;
-  margin-left: 10px;
-  transition: background-color 0.3s;
+  transition: background-color 0.3s ease;
 }
 
 .auth-buttons button:hover {
-  background-color: #034001; /* Verde oscuro */
+  background-color: #88BFA0;
 }
 
 .side-menu {
-  background-color: #F2F2F2; /* Gris claro */
-  color: #0D0D0D; /* Negro */
+  background: linear-gradient(to bottom, #055902, #025928);
+  width: 260px;
+  height: 100vh;
   position: fixed;
   top: 0;
-  left: -250px;
-  width: 250px;
-  height: 100%;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
-  transition: left 0.3s ease;
+  left: 0;
+  padding: 2rem 1.5rem;
+  box-shadow: 4px 0 12px rgba(0, 0, 0, 0.2);
+  border-top-right-radius: 20px;
+  border-bottom-right-radius: 20px;
+  transform: translateX(-100%);
+  transition: transform 0.4s ease-in-out;
+  z-index: 1000;
+  color: white;
 }
 
 .side-menu.open {
-  left: 0;
+  transform: translateX(0);
 }
 
 .side-menu ul {
   list-style: none;
   padding: 0;
-  margin-top: 60px;
+  margin: 0;
 }
 
 .side-menu li {
-  padding: 15px;
-  text-align: center;
+  margin-bottom: 1.2rem;
 }
 
 .side-menu a {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.7rem 1rem;
+  color: white;
   text-decoration: none;
-  color: #034001; /* Verde oscuro */
-  font-size: 18px;
-  display: block;
-  padding: 8px 0;
+  border-radius: 10px;
+  transition: background 0.3s ease, transform 0.2s ease;
+  font-weight: 500;
 }
 
 .side-menu a:hover {
-  background-color: #B9C5B1; /* Gris verde suave */
+  background-color: #428C62;
+  transform: translateX(5px);
+}
+.logo a {
+  color: white;
+  font-weight: bold;
+  font-size: 1.5rem;
+  text-decoration: none;
+}
+
+.logo a:hover {
+  color: #88BFA0; /* color verde claro al pasar el mouse */
 }
 </style>
