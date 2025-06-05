@@ -25,6 +25,7 @@ app.use('/api/auth', require('./routes/auth'));
 
 app.use('/api/receta', require('./routes/subirReceta'));
 
+app.use('/api/receta', require('./routes/recetaRoutes'));
 // Puerto del servidor
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

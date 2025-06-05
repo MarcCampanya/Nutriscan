@@ -14,6 +14,30 @@
 
     <h3>Elaboración:</h3>
     <p>{{ receta.preparation }}</p>
+
+    <!-- Solo se muestra la valoración del usuario -->
+    <div v-if="tieneToken && datosCargaCompletados" class="valoracion-usuario">
+      <h3>Tu valoración</h3>
+      <div class="star-rating-user" @mouseleave="clearHover">
+        <span
+          v-for="n in 5"
+          :key="n"
+          class="star"
+          :class="{ filled: n <= (hoverRating || userRating) }"
+          @mouseover="setHover(n)"
+          @click.prevent="enviarUserRating(n)"
+        >
+          ★
+        </span>
+      </div>
+      <p v-if="userRating > 0">
+        Has valorado esta receta con {{ userRating }} estrella<span v-if="userRating > 1">s</span>.
+      </p>
+    </div>
+
+    <div v-else-if="!tieneToken && datosCargaCompletados" class="prompt-login">
+      <p>Inicia sesión para valorar esta receta.</p>
+    </div>
   </div>
 </template>
 
@@ -26,37 +50,92 @@ export default {
   name: 'RecetaDetalle',
   setup() {
     const route = useRoute();
+
     const receta = ref({
+      _id: '',
       name: '',
       description: '',
       image: '',
       ingredients: [] as string[],
-      preparation: ''
+      preparation: '',
     });
+    const userRating = ref(0);
+    const hoverRating = ref(0);
+    const datosCargaCompletados = ref(false);
+
+    const obtenerToken = (): string | null => {
+      const token = localStorage.getItem('token');
+      return token ? token.trim() : null;
+    };
+
+    const tieneToken = !!obtenerToken();
+
+    const configConToken = () => {
+      const token = obtenerToken();
+      return token
+        ? { headers: { Authorization: `Bearer ${token}` } }
+        : undefined;
+    };
+
+    const setHover = (n: number) => {
+      hoverRating.value = n;
+    };
+
+    const clearHover = () => {
+      hoverRating.value = 0;
+    };
 
     const obtenerReceta = async () => {
       const id = route.params.id;
       try {
-        const response = await axios.get(`http://localhost:3000/api/receta/${id}`);
+        const config = configConToken();
+        const response = config
+          ? await axios.get(`http://localhost:3000/api/receta/${id}`, config)
+          : await axios.get(`http://localhost:3000/api/receta/${id}`);
+
         const data = response.data;
 
-        console.log('Datos recibidos:', data);
-
-        if (data.ingredients && Array.isArray(data.ingredients)) {
-          receta.value.ingredients = data.ingredients.slice();
-        } else if (data.ingredients && typeof data.ingredients === 'string') {
-          receta.value.ingredients = data.ingredients.split(',').map((i: string) => i.trim());
-        }
-
-        console.log('Ingredientes asignados:', receta.value.ingredients);
-
+        receta.value._id = data._id;
         receta.value.name = data.name;
         receta.value.description = data.description;
         receta.value.image = data.image;
         receta.value.preparation = data.preparation;
 
+        if (data.ingredients && Array.isArray(data.ingredients)) {
+          receta.value.ingredients = data.ingredients.slice();
+        } else if (data.ingredients && typeof data.ingredients === 'string') {
+          receta.value.ingredients = data.ingredients
+            .split(',')
+            .map((i: string) => i.trim());
+        } else {
+          receta.value.ingredients = [];
+        }
+
+        userRating.value = data.userRating || 0;
+        datosCargaCompletados.value = true;
       } catch (error) {
         console.error('Error al obtener los detalles de la receta:', error);
+      }
+    };
+
+    const enviarUserRating = async (n: number) => {
+      if (!tieneToken) {
+        return;
+      }
+      const id = route.params.id;
+      try {
+        const config = configConToken();
+        await axios.post(
+          `http://localhost:3000/api/receta/${id}/rating`,
+          { rating: n },
+          config
+        );
+
+        // Actualizamos solo userRating sin mostrar alert
+        userRating.value = n;
+        hoverRating.value = 0;
+      } catch (error: any) {
+        console.error('Error al enviar valoración de usuario:', error);
       }
     };
 
@@ -65,9 +144,16 @@ export default {
     });
 
     return {
-      receta
+      receta,
+      userRating,
+      hoverRating,
+      datosCargaCompletados,
+      tieneToken,
+      setHover,
+      clearHover,
+      enviarUserRating,
     };
-  }
+  },
 };
 </script>
 
@@ -127,5 +213,17 @@ export default {
   margin-top: 10px;
   font-size: 1.1rem;
   color: #555;
+}
+
+/* Estilos de estrellas igual que en Recetas.vue */
+.star {
+  display: inline-block;
+  font-size: 1.7rem;
+  color: #ddd;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.star.filled {
+  color: #055902;
 }
 </style>
