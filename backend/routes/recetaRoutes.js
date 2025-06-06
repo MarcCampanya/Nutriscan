@@ -1,40 +1,42 @@
+// backend/routes/recetaRoutes.js
+
 const express = require('express');
 const router  = express.Router();
 const Receta  = require('../models/receta');
-const jwt = require('jsonwebtoken'); // Para extraer token sin error
+const jwt     = require('jsonwebtoken');
 const { verifyToken } = require('../middleware/authMiddleware');
 
-// Middleware opcional para extraer usuario si token existe
+// Middleware opcional para extraer usuario si llega token válido
 function extractUser(req, res, next) {
   const authHeader = req.headers.authorization;
   if (authHeader && authHeader.startsWith('Bearer ')) {
     const token = authHeader.split(' ')[1];
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      req.user = decoded;
+      req.user = decoded; // { id, correo, rol, iat, exp }
     } catch (err) {
-      // Token inválido, no ponemos user, seguimos sin error
+      // Token inválido o expirado → no seteamos req.user, pero no interrumpimos
     }
   }
   next();
 }
 
 // GET /api/receta
+// Lista todas las recetas, incluyendo averageRating y userRating si hay token
 router.get('/', extractUser, async (req, res) => {
   try {
     const recetas = await Receta.find().select('-__v');
 
-    // Mapear para calcular ratings y userRating
     const response = recetas.map(receta => {
-      // Calcular media ratings
+      // Cálculo de la media de ratings
       let averageRating = 0;
-      if (receta.ratings.length > 0) {
+      if (Array.isArray(receta.ratings) && receta.ratings.length > 0) {
         const total = receta.ratings.reduce((acc, r) => acc + r.value, 0);
         averageRating = total / receta.ratings.length;
       }
 
-      // Obtener rating personal si hay usuario logueado
-      let userRating = null;
+      // Cálculo de la valoración personal (userRating) si hay usuario logueado
+      let userRating = 0;
       if (req.user) {
         const personal = receta.ratings.find(r => r.user.toString() === req.user.id);
         if (personal) userRating = personal.value;
@@ -42,47 +44,88 @@ router.get('/', extractUser, async (req, res) => {
 
       return {
         _id: receta._id,
-        titulo: receta.titulo,
-        descripcion: receta.descripcion,
-        ingredientes: receta.ingredientes,
-        pasos: receta.pasos,
-        // ... otros campos que necesites
+        name: receta.name,
+        description: receta.description,
+        image: receta.image,
+        ingredients: receta.ingredients,
+        preparation: receta.preparation,
         averageRating,
-        userRating,
+        userRating
       };
     });
 
     res.json(response);
   } catch (err) {
-    console.error(err);
+    console.error('Error al obtener recetas:', err);
     res.status(500).json({ error: 'Error al obtener recetas' });
   }
 });
 
-// POST /api/receta/:id/rating (igual que antes)
+// GET /api/receta/:id
+// Detalle de una sola receta, con averageRating y userRating si hay token
+router.get('/:id', extractUser, async (req, res) => {
+  try {
+    const receta = await Receta.findById(req.params.id).select('-__v');
+    if (!receta) return res.status(404).json({ error: 'Receta no encontrada' });
+
+    // Calcular media de ratings
+    let averageRating = 0;
+    if (Array.isArray(receta.ratings) && receta.ratings.length > 0) {
+      const total = receta.ratings.reduce((acc, r) => acc + r.value, 0);
+      averageRating = total / receta.ratings.length;
+    }
+
+    // Obtener valoración personal
+    let userRating = 0;
+    if (req.user) {
+      const personal = receta.ratings.find(r => r.user.toString() === req.user.id);
+      if (personal) userRating = personal.value;
+    }
+
+    res.json({
+      _id: receta._id,
+      name: receta.name,
+      description: receta.description,
+      image: receta.image,
+      ingredients: receta.ingredients,
+      preparation: receta.preparation,
+      averageRating,
+      userRating
+    });
+  } catch (err) {
+    console.error('Error al obtener la receta:', err);
+    res.status(500).json({ error: 'Error al obtener la receta' });
+  }
+});
+
+// POST /api/receta/:id/rating
+// Guarda o actualiza la valoración del usuario autenticado
 router.post('/:id/rating', verifyToken, async (req, res) => {
   const recetaId = req.params.id;
-  const userId = req.user.id;
+  const userId   = req.user.id;
   const { rating } = req.body;
+
+  if (!rating || rating < 1 || rating > 5) {
+    return res.status(400).json({ error: 'Rating inválido. Debe estar entre 1 y 5.' });
+  }
 
   try {
     const receta = await Receta.findById(recetaId);
     if (!receta) return res.status(404).send('Receta no encontrada');
 
-    // Verificar si usuario ya valoró
-    const existingRatingIndex = receta.ratings.findIndex(r => r.user.toString() === userId);
-    if (existingRatingIndex !== -1) {
-      // Actualizar valoración existente
-      receta.ratings[existingRatingIndex].value = rating;
+    // Si el usuario ya había valorado, actualizamos el valor
+    const existingIndex = receta.ratings.findIndex(r => r.user.toString() === userId);
+    if (existingIndex !== -1) {
+      receta.ratings[existingIndex].value = rating;
     } else {
-      // Agregar nueva valoración
+      // Si no había valorado, agregamos un nuevo subdocumento
       receta.ratings.push({ user: userId, value: rating });
     }
 
     await receta.save();
     res.status(200).send('Rating guardado correctamente');
-  } catch (error) {
-    console.error('Error al guardar rating:', error);
+  } catch (err) {
+    console.error('Error al guardar rating:', err);
     res.status(500).send('Error al guardar rating');
   }
 });

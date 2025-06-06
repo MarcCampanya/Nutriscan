@@ -1,32 +1,35 @@
-// Cargar las variables de entorno desde el archivo .env
+// server.js
+
+// 1) Cargar variables de entorno
 require('dotenv').config();
 
-// Importar dependencias
-const express = require('express');
+// 2) Importar dependencias
+const express  = require('express');
 const mongoose = require('mongoose');
-const cors = require('cors');
-const app = express();
+const cors     = require('cors');
+const app      = express();
 
-// Configurar middlewares
+// 3) Middlewares globales
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 
-// Conexión a MongoDB utilizando la URI desde el archivo .env
+// 4) Conexión a MongoDB (asegúrate de MONGO_URI en .env, p. ej. mongodb://localhost:27017/nombreDB)
 mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => {
-    console.log('Conexión a MongoDB exitosa');
-  })
-  .catch((error) => {
-    console.error('Error al conectar con MongoDB:', error);
-  });
+  .then(() => console.log('Conexión a MongoDB exitosa'))
+  .catch(error => console.error('Error al conectar con MongoDB:', error));
 
-// Definir las rutas (aquí es donde configuras las rutas de autenticación)
+// 5) Rutas de autenticación (login, registro, etc.)
 app.use('/api/auth', require('./routes/auth'));
 
-app.use('/api/receta', require('./routes/subirReceta'));
+// 6) Ruta para subir recetas (separada de /api/receta para evitar conflicto)
+app.use('/api/subirReceta', require('./routes/subirReceta'));
 
+// 7) Rutas principales de receta: listado, detalle, rating
 app.use('/api/receta', require('./routes/recetaRoutes'));
-// Puerto del servidor
+
+// 8) Rutas de comentarios (por ejemplo: /api/receta/:id/comentarios)
+app.use('/api/receta', require('./routes/comentarios'));
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en el puerto ${PORT}`);
