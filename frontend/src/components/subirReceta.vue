@@ -72,7 +72,7 @@ export default {
                 console.log('Ingredientes después de convertir:', nuevaReceta.value.ingredientes);
 
                 // Enviar la receta
-                await axios.post('http://localhost:3000/api/receta', nuevaReceta.value);
+                await axios.post('http://localhost:3000/api/subirReceta', nuevaReceta.value);
                 router.push('/recetas');
             } catch (error) {
                 console.error('Error al subir receta:', error);
