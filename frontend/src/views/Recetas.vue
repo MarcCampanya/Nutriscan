@@ -1,22 +1,11 @@
 <template>
   <div class="recetas-container">
     <div class="recetas-header">
-      <h1>Explora Recetas Saludables</h1>
-      <p class="recetas-intro">Descubre deliciosas recetas que cuidan de tu salud y bienestar.</p>
-
-      <!-- Mensaje invitando a compartir receta -->
-      <p class="mensaje-compartir">
-        ¿Te gustaría compartir tu receta? Haz clic en el botón para empezar a contribuir.
-      </p>
-      <button v-if="isAdmin" @click="clasificarYGuardarTodasLasRecetas()">
-        Clasificar todas con IA
-      </button>
-      <!-- Botón para subir receta (si está autenticado) -->
-      <router-link v-if="tieneToken" to="/subirReceta">
-        <button class="btn-subir">¡Comparte tu receta!</button>
-      </router-link>
-      <button v-else class="btn-subir" @click="alertaLogin">
-        ¡Comparte tu receta!
+      <h1>Explora Recetas</h1>
+      <p class="recetas-intro">Descubre platos deliciosos según tus gustos y necesidades</p>
+      <p class="mensaje-compartir">Puedes compartir tus propias recetas también.</p>
+      <button class="btn-subir" @click="$router.push({ name: 'CrearReceta' })">
+        Subir Receta
       </button>
     </div>
 
@@ -42,220 +31,175 @@
       </div>
 
       <!-- Panel de filtros -->
-      <div class="filtros-panel" v-show="mostrarFiltros">
+      <div v-if="mostrarFiltros" class="filtros-panel">
         <div class="filtros-content">
-          <h3>Filtrar recetas</h3>
+          <h3>Filtros Avanzados</h3>
 
-          <!-- Filtro por tipo de receta -->
           <div class="filtro-grupo">
-            <label>Tipo de receta:</label>
-            <select v-model="filtros.tipo" @change="aplicarFiltros">
-              <option value="">Todos los tipos</option>
+            <label for="tipo">Tipo de comida</label>
+            <select v-model="filtros.tipo" id="tipo" @change="aplicarFiltros">
+              <option value="">Todos</option>
               <option value="desayuno">Desayuno</option>
               <option value="almuerzo">Almuerzo</option>
               <option value="cena">Cena</option>
               <option value="postre">Postre</option>
               <option value="snack">Snack</option>
-              <option value="bebida">Bebida</option>
             </select>
           </div>
 
-          <!-- Filtro por dificultad -->
           <div class="filtro-grupo">
-            <label>Dificultad:</label>
-            <select v-model="filtros.dificultad" @change="aplicarFiltros">
-              <option value="">Cualquier dificultad</option>
+            <label for="dificultad">Dificultad</label>
+            <select v-model="filtros.dificultad" id="dificultad" @change="aplicarFiltros">
+              <option value="">Todas</option>
               <option value="fácil">Fácil</option>
-              <option value="medio">Medio</option>
+              <option value="media">Media</option>
               <option value="difícil">Difícil</option>
             </select>
           </div>
 
-          <!-- Filtro por tiempo de preparación -->
           <div class="filtro-grupo">
-            <label>Tiempo de preparación:</label>
-            <select v-model="filtros.tiempo" @change="aplicarFiltros">
-              <option value="">Cualquier tiempo</option>
-              <option value="15">Menos de 15 min</option>
-              <option value="30">Menos de 30 min</option>
-              <option value="60">Menos de 1 hora</option>
-              <option value="120">Menos de 2 horas</option>
+            <label for="tiempo">Tiempo máximo (min)</label>
+            <input type="number" v-model="filtros.tiempo" id="tiempo" @input="aplicarFiltros" min="1"
+              placeholder="30" />
+          </div>
+
+          <div class="filtro-grupo">
+            <label for="rating">Puntuación mínima</label>
+            <select v-model="filtros.rating" id="rating" @change="aplicarFiltros">
+              <option value="">Todas</option>
+              <option value="1">1 estrella</option>
+              <option value="2">2 estrellas</option>
+              <option value="3">3 estrellas</option>
+              <option value="4">4 estrellas</option>
+              <option value="5">5 estrellas</option>
             </select>
           </div>
 
-          <!-- Filtro por valoración -->
-          <div class="filtro-grupo">
-            <label>Valoración mínima:</label>
-            <select v-model="filtros.rating" @change="aplicarFiltros">
-              <option value="">Cualquier valoración</option>
-              <option value="4">4+ estrellas</option>
-              <option value="3">3+ estrellas</option>
-              <option value="2">2+ estrellas</option>
-              <option value="1">1+ estrellas</option>
-            </select>
+          <div class="checkbox-group">
+            <label class="checkbox-item">
+              <input type="checkbox" v-model="filtros.vegetariano" @change="aplicarFiltros" />
+              <span>Vegetariano</span>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" v-model="filtros.vegano" @change="aplicarFiltros" />
+              <span>Vegano</span>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" v-model="filtros.sinGluten" @change="aplicarFiltros" />
+              <span>Sin gluten</span>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" v-model="filtros.sinLactosa" @change="aplicarFiltros" />
+              <span>Sin lactosa</span>
+            </label>
           </div>
 
-          <!-- Filtros por ingredientes especiales -->
-          <div class="filtro-grupo">
-            <label>Características especiales:</label>
-            <div class="checkbox-group">
-              <label class="checkbox-item">
-                <input type="checkbox" v-model="filtros.vegetariano" @change="aplicarFiltros">
-                <span>Vegetariano</span>
-              </label>
-              <label class="checkbox-item">
-                <input type="checkbox" v-model="filtros.vegano" @change="aplicarFiltros">
-                <span>Vegano</span>
-              </label>
-              <label class="checkbox-item">
-                <input type="checkbox" v-model="filtros.sinGluten" @change="aplicarFiltros">
-                <span>Sin gluten</span>
-              </label>
-              <label class="checkbox-item">
-                <input type="checkbox" v-model="filtros.sinLactosa" @change="aplicarFiltros">
-                <span>Sin lactosa</span>
-              </label>
-            </div>
-          </div>
-
-          <!-- Botones del panel -->
           <div class="filtros-actions">
-            <button class="btn-limpiar" @click="limpiarFiltros">Limpiar filtros</button>
+            <button class="btn-limpiar" @click="limpiarFiltros">Limpiar</button>
             <button class="btn-cerrar" @click="cerrarFiltros">Cerrar</button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Sección MÁS VALORADAS (solo con rating > 0) -->
-    <div class="seccion-recetas" v-if="masValoradas.length">
-      <h2>Más valoradas</h2>
+    <!-- SECCIONES POR TIPO -->
+    <div v-for="(recetas, tipo) in recetasPorTipo" :key="tipo" class="seccion-recetas">
+      <h2>{{ tipo.charAt(0).toUpperCase() + tipo.slice(1) }}</h2>
       <div class="recetas-grid">
-        <div v-for="receta in masValoradas.slice(0, 4)" :key="receta._id" class="receta-card">
+        <div v-for="receta in recetas" :key="receta._id" class="receta-card">
           <router-link :to="'/receta/' + receta._id" class="receta-link">
-            <img :src="receta.image" alt="Imagen de la receta" class="receta-img" />
+            <img :src="receta.image" alt="Imagen receta" class="receta-img" />
             <div class="receta-content">
               <h3>{{ receta.name }}</h3>
-
-              <!-- Valoración global con estrellas (soporte mitad) -->
-              <div class="star-rating-global">
-                <span v-for="n in 5" :key="receta._id + '-g-' + n" class="star" :class="starGlobalClass(receta._id, n)">
-                  ★
-                </span>
-                <span class="rating-text">
-                  promedio {{ (ratings[receta._id] || 0).toFixed(1) }}
-                </span>
+              <div>
+                <span v-for="n in 5" :key="n" class="star" :class="starGlobalClass(receta._id, n)">★</span>
+                <span class="rating-text">{{ ratings[receta._id]?.toFixed(1) || 'Sin rating' }}</span>
               </div>
             </div>
           </router-link>
 
-          <!-- Botón de Guardar -->
           <div class="receta-actions">
             <button class="btn-guardar" :class="{ guardada: estaGuardada(receta._id) }"
               @click="toggleGuardarReceta(receta)">
-              <img :src="estaGuardada(receta._id) ? bookmarkAdded : bookmark" alt="Guardar receta" />
+              <img
+                :src="estaGuardada(receta._id) ? '../src/assets/img/bookmark_added.svg' : '../src/assets/img/bookmark.svg'"
+                alt="Guardar" />
             </button>
           </div>
 
-          <!-- Opciones de admin -->
-          <div v-if="isAdmin" class="receta-admin">
-            <button @click="editarReceta(receta._id)">Modificar</button>
-            <button @click="eliminarReceta(receta)">Eliminar</button>
-          </div>
-        </div>
-      </div>
-      <router-link to="/mas-valoradas">
-        <button class="btn-mostrar-mas">Mostrar más</button>
-      </router-link>
-    </div>
-
-    <!-- Sección MENOS VALORADAS (solo con rating > 0) -->
-    <div class="seccion-recetas" v-if="menosValoradas.length">
-      <h2>Menos valoradas</h2>
-      <div class="recetas-grid">
-        <div v-for="receta in menosValoradas.slice(0, 4)" :key="receta._id" class="receta-card">
-          <router-link :to="'/receta/' + receta._id" class="receta-link">
-            <img :src="receta.image" alt="Imagen de la receta" class="receta-img" />
-            <div class="receta-content">
-              <h3>{{ receta.name }}</h3>
-
-              <!-- Valoración global -->
-              <div class="star-rating-global">
-                <span v-for="n in 5" :key="receta._id + '-g2-' + n" class="star"
-                  :class="starGlobalClass(receta._id, n)">
-                  ★
-                </span>
-                <span class="rating-text">
-                  {{ (ratings[receta._id] || 0).toFixed(1) }}
-                </span>
-              </div>
-            </div>
-          </router-link>
-
-          <!-- Botón de Guardar -->
-          <div class="receta-actions">
-            <button class="btn-guardar" :class="{ guardada: estaGuardada(receta._id) }"
-              @click="toggleGuardarReceta(receta)">
-              <img :src="estaGuardada(receta._id) ? bookmarkAdded : bookmark" alt="Guardar receta" />
-            </button>
-          </div>
-
-          <!-- Opciones de admin -->
-          <div v-if="isAdmin" class="receta-admin">
-            <button @click="editarReceta(receta._id)">Modificar</button>
-            <button @click="eliminarReceta(receta)">Eliminar</button>
-          </div>
-        </div>
-      </div>
-      <router-link to="/menos-valoradas">
-        <button class="btn-mostrar-mas">Mostrar más</button>
-      </router-link>
-    </div>
-
-    <!-- Sección TODAS LAS RECETAS -->
-    <div class="seccion-recetas" v-if="recetasFiltradas.length">
-      <h2>Todas las recetas</h2>
-      <div class="recetas-grid">
-        <div v-for="receta in recetasFiltradas" :key="receta._id" class="receta-card">
-          <router-link :to="'/receta/' + receta._id" class="receta-link">
-            <img :src="receta.image" alt="Imagen de la receta" class="receta-img" />
-            <div class="receta-content">
-              <h3>{{ receta.name }}</h3>
-
-              <!-- Valoración global -->
-              <div class="star-rating-global">
-                <span v-for="n in 5" :key="receta._id + '-g3-' + n" class="star"
-                  :class="starGlobalClass(receta._id, n)">
-                  ★
-                </span>
-                <span class="rating-text">
-                  ({{ (ratings[receta._id] || 0).toFixed(1) }})
-                </span>
-              </div>
-            </div>
-          </router-link>
-
-          <!-- Botón de Guardar -->
-          <div class="receta-actions">
-            <button class="btn-guardar" :class="{ guardada: estaGuardada(receta._id) }"
-              @click="toggleGuardarReceta(receta)">
-              <img :src="estaGuardada(receta._id) ? bookmarkAdded : bookmark" alt="Guardar receta" />
-            </button>
-          </div>
-
-          <!-- Opciones de admin -->
-          <div v-if="isAdmin" class="receta-admin">
-            <button @click="editarReceta(receta._id)">Modificar</button>
+          <div class="receta-admin" v-if="isAdmin">
+            <button @click="editarReceta(receta._id)">Editar</button>
             <button @click="eliminarReceta(receta)">Eliminar</button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Mensaje si no hay resultados de búsqueda -->
-    <p v-if="recetasFiltradas.length === 0" class="no-resultados">
-      Lo sentimos, no hemos encontrado recetas que coincidan con tu búsqueda.
-    </p>
+    <!-- SECCIONES POR TAGS -->
+    <div v-for="(recetas, tag) in recetasPorTag" :key="tag" class="seccion-recetas" v-if="recetas.length">
+      <h2>{{ tag.charAt(0).toUpperCase() + tag.slice(1) }}</h2>
+      <div class="recetas-grid">
+        <div v-for="receta in recetas" :key="receta._id" class="receta-card">
+          <router-link :to="'/receta/' + receta._id" class="receta-link">
+            <img :src="receta.image" alt="Imagen receta" class="receta-img" />
+            <div class="receta-content">
+              <h3>{{ receta.name }}</h3>
+              <div>
+                <span v-for="n in 5" :key="n" class="star" :class="starGlobalClass(receta._id, n)">★</span>
+                <span class="rating-text">{{ ratings[receta._id]?.toFixed(1) || 'Sin rating' }}</span>
+              </div>
+            </div>
+          </router-link>
+
+          <div class="receta-actions">
+            <button class="btn-guardar" :class="{ guardada: estaGuardada(receta._id) }"
+              @click="toggleGuardarReceta(receta)">
+              <img
+                :src="estaGuardada(receta._id) ? '../src/assets/img/bookmark_added.svg' : '../src/assets/img/bookmark.svg'"
+                alt="Guardar" />
+            </button>
+          </div>
+
+          <div class="receta-admin" v-if="isAdmin">
+            <button @click="editarReceta(receta._id)">Editar</button>
+            <button @click="eliminarReceta(receta)">Eliminar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECCIÓN OTROS -->
+    <div v-for="(recetas, tipo) in recetasOtros" :key="tipo" class="seccion-recetas" v-if="recetas.length">
+      <h2>{{ tipo.charAt(0).toUpperCase() + tipo.slice(1) }}</h2>
+      <div class="recetas-grid">
+        <div v-for="receta in recetas" :key="receta._id" class="receta-card">
+          <router-link :to="'/receta/' + receta._id" class="receta-link">
+            <img :src="receta.image" alt="Imagen receta" class="receta-img" />
+            <div class="receta-content">
+              <h3>{{ receta.name }}</h3>
+              <div>
+                <span v-for="n in 5" :key="n" class="star" :class="starGlobalClass(receta._id, n)">★</span>
+                <span class="rating-text">{{ ratings[receta._id]?.toFixed(1) || 'Sin rating' }}</span>
+              </div>
+            </div>
+          </router-link>
+
+          <div class="receta-actions">
+            <button class="btn-guardar" :class="{ guardada: estaGuardada(receta._id) }"
+              @click="toggleGuardarReceta(receta)">
+              <img
+                :src="estaGuardada(receta._id) ? '../src/assets/img/bookmark_added.svg' : '../src/assets/img/bookmark.svg'"
+                alt="Guardar" />
+            </button>
+          </div>
+
+          <div class="receta-admin" v-if="isAdmin">
+            <button @click="editarReceta(receta._id)">Editar</button>
+            <button @click="eliminarReceta(receta)">Eliminar</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -485,6 +429,7 @@ export default {
     this.loadSaved();
   },
   computed: {
+
     tieneToken() {
       return !!this.obtenerToken();
     },
@@ -498,6 +443,45 @@ export default {
         .filter(r => (this.ratingCounts[r._id] || 0) > 0)
         .sort((a, b) => (this.ratings[a._id] || 0) - (this.ratings[b._id] || 0));
     },
+    recetasPorTipo() {
+      const secciones = {};
+      this.recetasFiltradas.forEach(receta => {
+        const tipo = receta.type || 'Otros';
+        if (tipo === 'Otros') return;  // Ignorar "Otros" aquí
+        if (!secciones[tipo]) {
+          secciones[tipo] = [];
+        }
+        secciones[tipo].push(receta);
+      });
+
+      // Ordenar claves alfabéticamente (opcional)
+      const ordenClaves = Object.keys(secciones).sort();
+
+      const seccionesOrdenadas = {};
+      ordenClaves.forEach(clave => {
+        seccionesOrdenadas[clave] = secciones[clave];
+      });
+
+      return seccionesOrdenadas;
+    },
+
+    recetasPorTag() {
+      const tagsDeseados = ['vegano', 'vegetariano', 'sin gluten', 'sin lactosa'];
+      const secciones = {};
+      tagsDeseados.forEach(tag => {
+        secciones[tag] = this.recetasFiltradas.filter(receta => receta.tags?.includes(tag));
+      });
+      return secciones;
+    },
+
+    recetasOtros() {
+      const seccionOtros = {};
+      const otros = this.recetasFiltradas.filter(receta => !receta.type || receta.type === 'Otros');
+      if (otros.length > 0) {
+        seccionOtros['Otros'] = otros;
+      }
+      return seccionOtros;
+    }
   },
   methods: {
     obtenerToken() {
@@ -608,34 +592,6 @@ export default {
       } catch (error) {
         console.error('Error al actualizar receta con IA:', error);
       }
-    },
-
-    // MÉTODO PARA CLASIFICAR TODAS LAS RECETAS Y GUARDARLAS EN BD
-    async clasificarYGuardarTodasLasRecetas() {
-      if (!this.isAdmin) {
-        alert('Solo los administradores pueden realizar esta acción');
-        return;
-      }
-
-      if (!confirm('¿Estás seguro de que quieres clasificar y actualizar TODAS las recetas? Esta acción puede tardar varios minutos.')) {
-        return;
-      }
-
-      let clasificadas = 0;
-      const total = this.recetas.length;
-
-      for (const receta of this.recetas) {
-        try {
-          await this.actualizarRecetaConIA(receta._id);
-          clasificadas++;
-          console.log(`Progreso: ${clasificadas}/${total}`);
-        } catch (error) {
-          console.error(`Error clasificando receta ${receta.name}:`, error);
-        }
-      }
-
-      alert(`Proceso completado. ${clasificadas} recetas fueron clasificadas automáticamente.`);
-      this.obtenerRecetas(); // Recargar recetas
     },
 
     filtrarRecetas() {
@@ -835,7 +791,7 @@ export default {
 /* Contenedor principal */
 .recetas-container {
   max-width: 1100px;
-  margin: 40px auto;
+  margin: 60px auto;
   padding: 0 20px;
   font-family: 'Lato', sans-serif;
   color: #034001;

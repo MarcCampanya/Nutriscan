@@ -104,6 +104,11 @@ export default defineComponent({
 <style scoped>
 /* Barra superior */
 .top-bar {
+  position: fixed;         /* <-- Añade esta línea */
+  top: 0;                  /* <-- Añade esta línea */
+  left: 0;                 /* <-- Añade esta línea */
+  width: 100%;             /* <-- Añade esta línea */
+  z-index: 1100;           /* <-- Añade esta línea para que esté sobre el menú lateral */
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -149,7 +154,7 @@ export default defineComponent({
 
 .side-menu {
   background: linear-gradient(to bottom, #055902, #025928);
-  width: 260px;
+  width: 200px;
   height: 100vh;
   position: fixed;
   top: 0;
@@ -160,7 +165,7 @@ export default defineComponent({
   border-bottom-right-radius: 20px;
   transform: translateX(-100%);
   transition: transform 0.4s ease-in-out;
-  z-index: 1000;
+  z-index: 111100;
   color: white;
 }
 

@@ -5,8 +5,8 @@
     <p><strong>Descripción:</strong> {{ receta.description }}</p>
 
     <h3>Ingredientes:</h3>
-    <ul v-if="Array.isArray(receta.ingredients) && receta.ingredients.length">
-      <li v-for="(ingrediente, index) in receta.ingredients" :key="index">
+    <ul v-if="Array.isArray(receta.ingredientes) && receta.ingredientes.length">
+      <li v-for="(ingrediente, index) in receta.ingredientes" :key="index">
         {{ ingrediente }}
       </li>
     </ul>
@@ -19,14 +19,8 @@
     <div v-if="tieneToken && datosCargaCompletados" class="valoracion-usuario">
       <h3>Tu valoración</h3>
       <div class="star-rating-user" @mouseleave="clearHover">
-        <span
-          v-for="n in 5"
-          :key="n"
-          class="star"
-          :class="{ filled: n <= (hoverRating || userRating) }"
-          @mouseover="setHover(n)"
-          @click.prevent="enviarUserRating(n)"
-        >
+        <span v-for="n in 5" :key="n" class="star" :class="{ filled: n <= (hoverRating || userRating) }"
+          @mouseover="setHover(n)" @click.prevent="enviarUserRating(n)">
           ★
         </span>
       </div>
@@ -48,7 +42,9 @@ import axios from 'axios';
 
 export default {
   name: 'RecetaDetalle',
+
   setup() {
+
     const route = useRoute();
 
     const receta = ref({
@@ -56,7 +52,7 @@ export default {
       name: '',
       description: '',
       image: '',
-      ingredients: [] as string[],
+      ingredientes: [] as string[],
       preparation: '',
     });
     const userRating = ref(0);
@@ -86,6 +82,7 @@ export default {
     };
 
     const obtenerReceta = async () => {
+
       const id = route.params.id;
       try {
         const config = configConToken();
@@ -94,6 +91,7 @@ export default {
           : await axios.get(`http://localhost:3000/api/receta/${id}`);
 
         const data = response.data;
+        console.log('Receta completa recibida:', data);
 
         receta.value._id = data._id;
         receta.value.name = data.name;
@@ -101,22 +99,31 @@ export default {
         receta.value.image = data.image;
         receta.value.preparation = data.preparation;
 
-        if (data.ingredients && Array.isArray(data.ingredients)) {
-          receta.value.ingredients = data.ingredients.slice();
-        } else if (data.ingredients && typeof data.ingredients === 'string') {
-          receta.value.ingredients = data.ingredients
+        const ingredientesRaw = data.ingredientes || data.ingredientes;
+
+        if (Array.isArray(ingredientesRaw)) {
+          receta.value.ingredientes = ingredientesRaw.slice();
+        } else if (typeof ingredientesRaw === 'string') {
+          const raw = ingredientesRaw.trim();
+          receta.value.ingredientes = raw
             .split(',')
-            .map((i: string) => i.trim());
+            .map((i: string) => i.trim())
+            .filter((i: string) => i.length > 0);
         } else {
-          receta.value.ingredients = [];
+          receta.value.ingredientes = [];
         }
+
+        console.log('Ingredientes procesados:', receta.value.ingredientes);
+
 
         userRating.value = data.userRating || 0;
         datosCargaCompletados.value = true;
       } catch (error) {
         console.error('Error al obtener los detalles de la receta:', error);
       }
+
     };
+    console.log('Ingredientes procesados:', receta.value.ingredientes);
 
     const enviarUserRating = async (n: number) => {
       if (!tieneToken) {
@@ -223,6 +230,7 @@ export default {
   cursor: pointer;
   transition: color 0.2s;
 }
+
 .star.filled {
   color: #055902;
 }
