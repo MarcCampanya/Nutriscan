@@ -5,8 +5,8 @@
     <p><strong>Descripción:</strong> {{ receta.description }}</p>
 
     <h3>Ingredientes:</h3>
-    <ul v-if="Array.isArray(receta.ingredientes) && receta.ingredientes.length">
-      <li v-for="(ingrediente, index) in receta.ingredientes" :key="index">
+    <ul v-if="Array.isArray(receta.ingredients) && receta.ingredients.length">
+      <li v-for="(ingrediente, index) in receta.ingredients" :key="index">
         {{ ingrediente }}
       </li>
     </ul>
@@ -39,6 +39,7 @@
 import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import axios from 'axios';
+import { reduceEachLeadingCommentRange } from 'typescript';
 
 export default {
   name: 'RecetaDetalle',
@@ -52,7 +53,7 @@ export default {
       name: '',
       description: '',
       image: '',
-      ingredientes: [] as string[],
+      ingredients: [] as string[], // Cambiado aquí
       preparation: '',
     });
     const userRating = ref(0);
@@ -91,29 +92,25 @@ export default {
           : await axios.get(`http://localhost:3000/api/receta/${id}`);
 
         const data = response.data;
-        console.log('Receta completa recibida:', data);
-
         receta.value._id = data._id;
         receta.value.name = data.name;
         receta.value.description = data.description;
         receta.value.image = data.image;
         receta.value.preparation = data.preparation;
 
-        const ingredientesRaw = data.ingredientes || data.ingredientes;
+        const ingredientsRaw = data.ingredients || data.ingredients;
 
-        if (Array.isArray(ingredientesRaw)) {
-          receta.value.ingredientes = ingredientesRaw.slice();
-        } else if (typeof ingredientesRaw === 'string') {
-          const raw = ingredientesRaw.trim();
-          receta.value.ingredientes = raw
+        if (Array.isArray(ingredientsRaw)) {
+          receta.value.ingredients = ingredientsRaw.slice();
+        } else if (typeof ingredientsRaw === 'string') {
+          const raw = ingredientsRaw.trim();
+          receta.value.ingredients = raw
             .split(',')
             .map((i: string) => i.trim())
             .filter((i: string) => i.length > 0);
         } else {
-          receta.value.ingredientes = [];
+          receta.value.ingredients = [];
         }
-
-        console.log('Ingredientes procesados:', receta.value.ingredientes);
 
 
         userRating.value = data.userRating || 0;
@@ -123,7 +120,6 @@ export default {
       }
 
     };
-    console.log('Ingredientes procesados:', receta.value.ingredientes);
 
     const enviarUserRating = async (n: number) => {
       if (!tieneToken) {

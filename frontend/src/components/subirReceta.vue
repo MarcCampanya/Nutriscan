@@ -8,7 +8,7 @@
             <textarea v-model="nuevaReceta.description" placeholder="Descripción" required></textarea>
 
             <label>Ingredientes (separados por coma):</label>
-            <input v-model="nuevaReceta.ingredientesTexto" placeholder="Ej: tomate, lechuga, sal" />
+            <input v-model="nuevaReceta.ingredientsText" placeholder="Ej: tomate, lechuga, sal" />
 
             <label>Elaboración:</label>
             <textarea v-model="nuevaReceta.preparation" placeholder="Describe cómo se prepara la receta"
@@ -32,15 +32,15 @@ export default {
             name: string;
             description: string;
             image: string;
-            ingredientesTexto: string;
-            ingredientes: string[];
+            ingredientsText: string;
+            ingredients: string[];
             preparation: string;
         }>({
             name: '',
             description: '',
             image: '',
-            ingredientesTexto: '',
-            ingredientes: [],
+            ingredientsText: '',
+            ingredients: [],
             preparation: ''
         });
 
@@ -59,23 +59,25 @@ export default {
 
         const subirReceta = async () => {
             try {
-                // Asegúrate de que los ingredientes están siendo convertidos correctamente
-                console.log('Ingredientes antes de enviar:', nuevaReceta.value.ingredientesTexto);
-
                 // Convertir ingredientes de texto a un arreglo de strings
-                nuevaReceta.value.ingredientes = nuevaReceta.value.ingredientesTexto
+                nuevaReceta.value.ingredients = nuevaReceta.value.ingredientsText
                     .split(',')
                     .map(i => i.trim())
                     .filter(i => i !== '');
 
-                // Verificar que los ingredientes ahora estén en formato de arreglo
-                console.log('Ingredientes después de convertir:', nuevaReceta.value.ingredientes);
-
                 // Enviar la receta
-                await axios.post('http://localhost:3000/api/subirReceta', nuevaReceta.value);
+                const recetaAEnviar = {
+                    name: nuevaReceta.value.name,
+                    description: nuevaReceta.value.description,
+                    image: nuevaReceta.value.image,
+                    preparation: nuevaReceta.value.preparation,
+                    ingredients: nuevaReceta.value.ingredients
+                };
+
+                await axios.post('http://localhost:3000/api/subirReceta', recetaAEnviar);
                 router.push('/recetas');
-            } catch (error) {
-                console.error('Error al subir receta:', error);
+            } catch (error: any) {
+                console.error('Error al subir receta:', error.response?.data || error);
             }
         };
         return {

@@ -8,31 +8,27 @@ const { ObjectId } = require('mongoose').Types;
 // Crear receta
 router.post('/', async (req, res) => {
     try {
-        const { name, description, image, ingredientesTexto, preparation } = req.body;
+        const { name, description, image, ingredients, preparation } = req.body;
 
-        if (!name || !description || !image || !ingredientesTexto || !preparation) {
+        if (!name || !description || !image || !ingredients || !preparation) {
             return res.status(400).json({ message: 'Todos los campos son requeridos' });
         }
 
-        const ingredientes = ingredientesTexto
-            .split(',')
-            .map(i => i.trim())
-            .filter(i => i !== '');
-
-        console.log('Ingredientes procesados:', ingredientes);
+        // ingredients ya es un array
+        console.log('Ingredientes recibidos:', ingredients);
 
         // Clasificación automática usando la clase RecipeClassifier
         const { type, difficulty, preparationTime, tags, category } = classifier.clasificarReceta({
             titulo: name,
             descripcion: description + ' ' + preparation,
-            ingredientes
+            ingredientes: ingredients // Si el clasificador espera 'ingredientes', déjalo así
         });
 
         const newRecipe = new Recipe({
             name,
             description,
             image,
-            ingredientes,
+            ingredients,
             preparation,
             category,
             type,
@@ -62,22 +58,22 @@ router.get('/', async (req, res) => {
 
 // Actualizar receta
 router.put('/:id', verifyToken, requireAdmin, async (req, res) => {
-    const { name, description, image, ingredientesTexto, preparation } = req.body;
+    const { name, description, image, ingredientsText, preparation } = req.body;
 
     try {
-        const ingredientes = ingredientesTexto
-            ? ingredientesTexto.split(',').map(i => i.trim()).filter(i => i !== '')
+        const ingredients = ingredientsText
+            ? ingredientsText.split(',').map(i => i.trim()).filter(i => i !== '')
             : undefined;
 
         const updateFields = { name, description, image, preparation };
-        if (ingredientes) updateFields.ingredientes = ingredientes;
+        if (ingredients) updateFields.ingredients = ingredients;
 
         // Recalcular clasificación si hay cambios relevantes
-        if (name || description || preparation || ingredientes) {
+        if (name || description || preparation || ingredients) {
             const { type, difficulty, preparationTime, tags, category } = classifier.clasificarReceta({
                 titulo: name || '',
                 descripcion: `${description || ''} ${preparation || ''}`,
-                ingredientes: ingredientes || []
+                ingredientes: ingredients || [] // Si el clasificador espera 'ingredientes', déjalo así
             });
             Object.assign(updateFields, { type, difficulty, preparationTime, tags, category });
         }

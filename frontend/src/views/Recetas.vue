@@ -544,7 +544,6 @@ export default {
           if (!receta.preparationTime) receta.preparationTime = clasificacion.preparationTime;
           if (!receta.tags || receta.tags.length === 0) receta.tags = clasificacion.tags;
 
-          console.log(`Receta "${receta.name}" clasificada automáticamente:`, clasificacion);
         }
       });
     },
@@ -693,6 +692,8 @@ export default {
       this.$router.push({ name: 'EditarReceta', params: { id } });
     },
     async eliminarReceta(recetaId) {
+                        console.log(recetaId)
+
       if (!confirm('¿Estás seguro de que deseas eliminar esta receta?')) return;
       try {
         await axios.delete(`http://localhost:3000/api/receta/${recetaId}`, {
@@ -715,59 +716,59 @@ export default {
     estaGuardada(id) {
       return this.savedIds.includes(id);
     },
-// Nueva función que maneja tanto guardar como quitar de guardados
-toggleGuardarReceta(receta) {
-  const token = localStorage.getItem('token')
-  if (!token) return alert('Debes iniciar sesión para guardar recetas.')
+    // Nueva función que maneja tanto guardar como quitar de guardados
+    toggleGuardarReceta(receta) {
+      const token = localStorage.getItem('token')
+      if (!token) return alert('Debes iniciar sesión para guardar recetas.')
 
-  let id
-  try {
-    id = JSON.parse(atob(token.split('.')[1])).id
-  } catch {
-    console.error('Token inválido')
-    return
-  }
+      let id
+      try {
+        id = JSON.parse(atob(token.split('.')[1])).id
+      } catch {
+        console.error('Token inválido')
+        return
+      }
 
-  const key = `recipes_${id}`
-  const current = JSON.parse(localStorage.getItem(key) || '[]')
+      const key = `recipes_${id}`
+      const current = JSON.parse(localStorage.getItem(key) || '[]')
 
-  const index = current.findIndex(r => r._id === receta._id)
+      const index = current.findIndex(r => r._id === receta._id)
 
-  if (index > -1) {
-    current.splice(index, 1)
-  } else {
-    current.push(receta)
-  }
+      if (index > -1) {
+        current.splice(index, 1)
+      } else {
+        current.push(receta)
+      }
 
-  localStorage.setItem(key, JSON.stringify(current))
+      localStorage.setItem(key, JSON.stringify(current))
 
-  // --- Cambia el icono actualizando el array reactivo de guardadas ---
-  if (this.recetasGuardadas) {
-    // Si usas un array reactivo para los IDs de recetas guardadas:
-    this.recetasGuardadas = current.map(r => r._id)
-  }
-},
-guardarReceta(receta) {
-  if (!this.estaGuardada(receta._id)) {
-    this.savedIds.push(receta._id);
-    this.persistSaved();
-  }
-},
-quitarRecetaGuardada(receta) {
-  const index = this.savedIds.indexOf(receta._id);
-  if (index > -1) {
-    this.savedIds.splice(index, 1);
-    this.persistSaved();
-  }
-},
-starGlobalClass(recetaId, n) {
-  const rating = this.ratings[recetaId] || 0;
-  const entero = Math.floor(rating);
-  const decimal = rating - entero;
-  if (n <= entero) return 'filled';
-  if (n === entero + 1 && decimal >= 0.5) return 'half';
-  return '';
-}
+      // --- Cambia el icono actualizando el array reactivo de guardadas ---
+      if (this.recetasGuardadas) {
+        // Si usas un array reactivo para los IDs de recetas guardadas:
+        this.recetasGuardadas = current.map(r => r._id)
+      }
+    },
+    guardarReceta(receta) {
+      if (!this.estaGuardada(receta._id)) {
+        this.savedIds.push(receta._id);
+        this.persistSaved();
+      }
+    },
+    quitarRecetaGuardada(receta) {
+      const index = this.savedIds.indexOf(receta._id);
+      if (index > -1) {
+        this.savedIds.splice(index, 1);
+        this.persistSaved();
+      }
+    },
+    starGlobalClass(recetaId, n) {
+      const rating = this.ratings[recetaId] || 0;
+      const entero = Math.floor(rating);
+      const decimal = rating - entero;
+      if (n <= entero) return 'filled';
+      if (n === entero + 1 && decimal >= 0.5) return 'half';
+      return '';
+    }
   }
 };
 </script>
