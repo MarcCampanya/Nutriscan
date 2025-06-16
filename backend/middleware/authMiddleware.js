@@ -2,17 +2,23 @@ const jwt = require('jsonwebtoken');
 
 // Middleware para verificar el token
 function verifyToken(req, res, next) {
-  const token = req.header('Authorization')?.replace('Bearer ', ''); // Obtener el token del encabezado
-  if (!token) return res.status(401).send('Acceso denegado');
+  const authHeader = req.headers['authorization'];
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ mensaje: 'Token no proporcionado o mal formado' });
+  }
+
+  const token = authHeader.split(' ')[1];
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET); // Verificar el token
-    req.user = decoded; // Guardar los datos del usuario en el request
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded;
     next();
   } catch (error) {
-    return res.status(400).send('Token no válido');
+    console.error('Error al verificar token:', error);
+    return res.status(400).json({ mensaje: 'Token no válido' });
   }
 }
+
 
 // Middleware para verificar que el usuario sea admin
 function requireAdmin(req, res, next) {

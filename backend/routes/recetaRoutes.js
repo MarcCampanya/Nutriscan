@@ -90,7 +90,8 @@ router.get('/:id', extractUser, async (req, res) => {
       ingredients: receta.ingredients,
       preparation: receta.preparation,
       averageRating,
-      userRating
+      userRating,
+      comments: receta.comments
     });
   } catch (err) {
     console.error('Error al obtener la receta:', err);

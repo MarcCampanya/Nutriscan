@@ -18,7 +18,12 @@ router.post('/login', async (req, res) => {
       }
   
       const token = jwt.sign(
-        { id: usuario._id, correo: usuario.correo, rol: usuario.rol },
+        { 
+          id: usuario._id, 
+          username: usuario.nombre, // <-- Añade esto
+          correo: usuario.correo, 
+          rol: usuario.rol 
+        },
         process.env.JWT_SECRET,
         { expiresIn: '1h' }
       );      
@@ -53,7 +58,8 @@ router.post('/register', async (req, res) => {
 
     // Crear el token
     const token = jwt.sign(
-      { id: nuevoUsuario._id, correo: nuevoUsuario.correo, rol: nuevoUsuario.rol },
+      { id: nuevoUsuario._id, username: nuevoUsuario.nombre, // <-- Añade esto
+        correo: nuevoUsuario.correo, rol: nuevoUsuario.rol },
       process.env.JWT_SECRET,
       { expiresIn: '6h' }
     );
