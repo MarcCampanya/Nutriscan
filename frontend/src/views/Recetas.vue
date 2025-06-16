@@ -128,8 +128,8 @@
           </div>
 
           <div class="receta-admin" v-if="isAdmin">
-            <button @click="editarReceta(receta._id)">Editar</button>
-            <button @click="eliminarReceta(receta)">Eliminar</button>
+            <button class="btn-editar" @click="editarReceta(receta._id)">Editar</button>
+            <button @click="eliminarReceta(receta._id)">Eliminar</button>
           </div>
         </div>
       </div>
@@ -161,8 +161,8 @@
           </div>
 
           <div class="receta-admin" v-if="isAdmin">
-            <button @click="editarReceta(receta._id)">Editar</button>
-            <button @click="eliminarReceta(receta)">Eliminar</button>
+            <button class="btn-editar" @click="editarReceta(receta._id)">Editar</button>
+            <button @click="eliminarReceta(receta._id)">Eliminar</button>
           </div>
         </div>
       </div>
@@ -194,8 +194,8 @@
           </div>
 
           <div class="receta-admin" v-if="isAdmin">
-            <button @click="editarReceta(receta._id)">Editar</button>
-            <button @click="eliminarReceta(receta)">Eliminar</button>
+            <button class="btn-editar" @click="editarReceta(receta._id)">Editar</button>
+            <button @click="eliminarReceta(receta._id)">Eliminar</button>
           </div>
         </div>
       </div>
@@ -692,20 +692,17 @@ export default {
     editarReceta(id) {
       this.$router.push({ name: 'EditarReceta', params: { id } });
     },
-    async eliminarReceta(receta) {
-      if (confirm(`¿Estás seguro que quieres eliminar la receta "${receta.name}"?`)) {
-        const token = this.obtenerToken();
-        if (!token || !this.tokenValido()) {
-          alert('No tienes permiso o tu sesión expiró. Inicia sesión de nuevo.');
-          return;
-        }
-        try {
-          await axios.delete(`http://localhost:3000/api/receta/${receta._id}`, { headers: { Authorization: `Bearer ${token}` } });
-          this.obtenerRecetas();
-        } catch (e) {
-          console.error('Error al eliminar receta:', e);
-          alert('No se pudo eliminar la receta. Inténtalo de nuevo.');
-        }
+    async eliminarReceta(recetaId) {
+      if (!confirm('¿Estás seguro de que deseas eliminar esta receta?')) return;
+      try {
+        await axios.delete(`http://localhost:3000/api/receta/${recetaId}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+        window.location.reload(); // Refresca la página automáticamente
+      } catch (error) {
+        alert('Error al eliminar la receta.');
       }
     },
     loadSaved() {

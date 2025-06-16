@@ -4,7 +4,7 @@ const express = require('express');
 const router  = express.Router();
 const Receta  = require('../models/receta');
 const jwt     = require('jsonwebtoken');
-const { verifyToken } = require('../middleware/authMiddleware');
+const { verifyToken, requireAdmin } = require('../middleware/authMiddleware');
 
 // Middleware opcional para extraer usuario si llega token válido
 function extractUser(req, res, next) {
@@ -127,6 +127,30 @@ router.post('/:id/rating', verifyToken, async (req, res) => {
   } catch (err) {
     console.error('Error al guardar rating:', err);
     res.status(500).send('Error al guardar rating');
+  }
+});
+
+// Eliminar receta (solo admin)
+router.delete('/:id', verifyToken, requireAdmin, async (req, res) => {
+  try {
+    const receta = await Receta.findByIdAndDelete(req.params.id);
+    if (!receta) {
+      return res.status(404).json({ msg: 'Receta no encontrada.' });
+    }
+    res.json({ msg: 'Receta eliminada correctamente.' });
+  } catch (error) {
+    res.status(500).json({ msg: 'Error al eliminar la receta.' });
+  }
+});
+
+// Actualizar receta (solo admin)
+router.put('/:id', verifyToken, requireAdmin, async (req, res) => {
+  try {
+    const receta = await Receta.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!receta) return res.status(404).json({ msg: 'Receta no encontrada.' });
+    res.json(receta);
+  } catch (error) {
+    res.status(500).json({ msg: 'Error al actualizar la receta.' });
   }
 });
 

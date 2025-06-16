@@ -7,6 +7,7 @@ import Login from '../views/Login.vue';
 import Register from '../views/Register.vue';
 import subirReceta from '../components/subirReceta.vue';
 import RecetaDetalle from '../views/RecetaDetalle.vue';
+import EditarReceta from '@/views/EditarReceta.vue';
 
 
 const routes = [
@@ -53,6 +54,11 @@ const routes = [
     path: '/receta/:id',  // Ruta dinámica para detalles de la receta
     name: 'RecetaDetalle',
     component: RecetaDetalle
+  },
+  {
+    path: '/receta/editar/:id',
+    name: 'EditarReceta',
+    component: EditarReceta
   }
 ];
 
