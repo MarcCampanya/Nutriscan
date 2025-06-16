@@ -1,6 +1,5 @@
 import { createWebHistory, createRouter } from 'vue-router'; // Cambié createWebHashHistory por createWebHistory
 import Home from '../views/Home.vue';
-import Historial from '../views/Historial.vue';
 import Recetas from '../views/Recetas.vue';
 import Scanner from '../views/Scanner.vue';
 import Perfil from '../views/Perfil.vue';
@@ -16,12 +15,6 @@ const routes = [
     name: 'home',
     component: Home,
     meta: { title: 'Home' }, // Establecer un título para esta ruta
-  },
-  {
-    path: '/Historial',
-    name: 'Historial',
-    component: Historial,
-    meta: { title: 'Historial' },  // Título personalizado para esta ruta
   },
   {
     path: '/Recetas',

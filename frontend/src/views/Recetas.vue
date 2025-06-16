@@ -4,7 +4,7 @@
       <h1>Explora Recetas</h1>
       <p class="recetas-intro">Descubre platos deliciosos según tus gustos y necesidades</p>
       <p class="mensaje-compartir">Puedes compartir tus propias recetas también.</p>
-      <button class="btn-subir" @click="$router.push({ name: 'CrearReceta' })">
+      <button class="btn-subir" @click="$router.push({ name: 'subirReceta' })">
         Subir Receta
       </button>
     </div>
@@ -718,41 +718,109 @@ export default {
     estaGuardada(id) {
       return this.savedIds.includes(id);
     },
-    // Nueva función que maneja tanto guardar como quitar de guardados
-    toggleGuardarReceta(receta) {
-      if (this.estaGuardada(receta._id)) {
-        // Quitar de guardados
-        this.quitarRecetaGuardada(receta);
-      } else {
-        // Guardar receta
-        this.guardarReceta(receta);
-      }
-    },
-    guardarReceta(receta) {
-      if (!this.estaGuardada(receta._id)) {
-        this.savedIds.push(receta._id);
-        this.persistSaved();
-        alert(`Receta "${receta.name}" guardada.`);
-      }
-    },
-    quitarRecetaGuardada(receta) {
-      const index = this.savedIds.indexOf(receta._id);
-      if (index > -1) {
-        this.savedIds.splice(index, 1);
-        this.persistSaved();
-        alert(`Receta "${receta.name}" eliminada de guardados.`);
-      }
-    },
-    starGlobalClass(recetaId, n) {
-      const rating = this.ratings[recetaId] || 0;
-      const entero = Math.floor(rating);
-      const decimal = rating - entero;
-      if (n <= entero) return 'filled';
-      if (n === entero + 1 && decimal >= 0.5) return 'half';
-      return '';
-    }
+// Nueva función que maneja tanto guardar como quitar de guardados
+toggleGuardarReceta(receta) {
+  const token = localStorage.getItem('token')
+  if (!token) return alert('Debes iniciar sesión para guardar recetas.')
+
+  let id
+  try {
+    id = JSON.parse(atob(token.split('.')[1])).id
+  } catch {
+    console.error('Token inválido')
+    return
+  }
+
+  const key = `recipes_${id}`
+  const current = JSON.parse(localStorage.getItem(key) || '[]')
+
+  const index = current.findIndex(r => r._id === receta._id)
+
+  if (index > -1) {
+    current.splice(index, 1)
+  } else {
+    current.push(receta)
+  }
+
+  localStorage.setItem(key, JSON.stringify(current))
+
+  // --- Cambia el icono actualizando el array reactivo de guardadas ---
+  if (this.recetasGuardadas) {
+    // Si usas un array reactivo para los IDs de recetas guardadas:
+    this.recetasGuardadas = current.map(r => r._id)
+  }
+},
+guardarReceta(receta) {
+  if (!this.estaGuardada(receta._id)) {
+    this.savedIds.push(receta._id);
+    this.persistSaved();
+  }
+},
+quitarRecetaGuardada(receta) {
+  const index = this.savedIds.indexOf(receta._id);
+  if (index > -1) {
+    this.savedIds.splice(index, 1);
+    this.persistSaved();
+  }
+},
+starGlobalClass(recetaId, n) {
+  const rating = this.ratings[recetaId] || 0;
+  const entero = Math.floor(rating);
+  const decimal = rating - entero;
+  if (n <= entero) return 'filled';
+  if (n === entero + 1 && decimal >= 0.5) return 'half';
+  return '';
+}
   }
 };
+</script>
+
+<script setup>
+import { ref, onMounted } from 'vue'
+import bookmark from '@/assets/img/bookmark.svg'
+import bookmarkAdded from '@/assets/img/bookmark_added.svg'
+
+const recetasGuardadas = ref([])
+
+function estaGuardada(recetaId) {
+  return recetasGuardadas.value.includes(recetaId)
+}
+
+function toggleGuardarReceta(receta) {
+  const token = localStorage.getItem('token')
+  if (!token) return alert('Debes iniciar sesión para guardar recetas.')
+  let id
+  try {
+    id = JSON.parse(atob(token.split('.')[1])).id
+  } catch {
+    console.error('Token inválido')
+    return
+  }
+  const key = `recipes_${id}`
+  const current = JSON.parse(localStorage.getItem(key) || '[]')
+  const index = current.findIndex(r => r._id === receta._id)
+  if (index > -1) {
+    current.splice(index, 1)
+  } else {
+    current.push(receta)
+  }
+  localStorage.setItem(key, JSON.stringify(current))
+  recetasGuardadas.value = current.map(r => r._id)
+}
+
+onMounted(() => {
+  const token = localStorage.getItem('token')
+  if (!token) return
+  let id
+  try {
+    id = JSON.parse(atob(token.split('.')[1])).id
+  } catch {
+    return
+  }
+  const key = `recipes_${id}`
+  const current = JSON.parse(localStorage.getItem(key) || '[]')
+  recetasGuardadas.value = current.map(r => r._id)
+})
 </script>
 
 <style scoped>
@@ -1114,7 +1182,7 @@ export default {
 }
 
 .btn-guardar.guardada {
-  background: rgba(5, 89, 2, 0.1);
+  background: rgba(255, 255, 255, 1);
 }
 
 .btn-guardar.guardada img {

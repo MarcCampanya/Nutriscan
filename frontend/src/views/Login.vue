@@ -31,31 +31,50 @@ export default {
     return {
       email: '',
       password: ''
-    };
+    }
   },
   methods: {
     async handleLogin() {
       try {
-        const respuesta = await axios.post('http://localhost:3000/api/auth/login', {
-          correo: this.email,
-          contraseña: this.password
-        });
+        const respuesta = await axios.post(
+          'http://localhost:3000/api/auth/login',
+          {
+            correo: this.email,
+            contraseña: this.password
+          }
+        )
 
-        // Guardar el token en localStorage
-        localStorage.setItem('token', respuesta.data.token);
+        // 1) Guardar token
+        localStorage.setItem('token', respuesta.data.token)
+        console.log('Token guardado:', respuesta.data.token)
 
-        // Redirigir a una ruta protegida o al dashboard
-        this.$router.push('/');
+        // 2) Guardar datos del usuario
+        const usuario = respuesta.data.usuario
+        console.log('Objeto usuario recibido:', usuario)
+
+        // IMPORTANTE: aquí usamos usuario.id
+        const key = `user_${usuario.id}`
+        localStorage.setItem(key, JSON.stringify({
+          nombre: usuario.nombre,
+          correo: usuario.correo
+        }))
+        console.log(`Datos de usuario guardados en "${key}" =>`, {
+          nombre: usuario.nombre,
+          correo: usuario.correo
+        })
+
+        // 3) Redirigir al perfil
+        this.$router.push('/perfil')
       } catch (error) {
-        alert(error.response?.data?.mensaje || 'Error al iniciar sesión');
+        console.error('Error en handleLogin:', error)
+        alert(error.response?.data?.mensaje || 'Error al iniciar sesión')
       }
-    },
-    toggleMenu(event) {
-      this.$emit('toggle-menu', event);
     }
   }
-};
+}
 </script>
+
+
 
 <style scoped>
 .fullscreen {
@@ -128,20 +147,23 @@ export default {
   background: #428C62;
 }
 
-.switch-auth, .home-link {
+.switch-auth,
+.home-link {
   margin-top: 1.1rem;
   text-align: center;
   color: #055902;
 }
 
-.switch-auth a, .home-link a {
+.switch-auth a,
+.home-link a {
   color: #428C62;
   font-weight: 500;
   text-decoration: none;
   transition: color 0.2s;
 }
 
-.switch-auth a:hover, .home-link a:hover {
+.switch-auth a:hover,
+.home-link a:hover {
   color: #055902;
 }
 </style>

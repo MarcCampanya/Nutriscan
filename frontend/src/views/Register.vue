@@ -46,13 +46,20 @@
             correo: this.email,
             contraseña: this.password
           });
-  
-          // Guardar el token en localStorage
+
+          // 1) Guardar el token en localStorage
           localStorage.setItem('token', respuesta.data.token);
-  
-          // Redirigir tras el registro
-          this.$router.push('/'); // o cualquier ruta privada
-  
+
+          // 2) Guardar datos del usuario igual que en Login.vue
+          const usuario = respuesta.data.usuario;
+          const key = `user_${usuario._id || usuario.id}`;
+          localStorage.setItem(key, JSON.stringify({
+            nombre: usuario.nombre,
+            correo: usuario.correo
+          }));
+
+          // 3) Redirigir tras el registro
+          this.$router.push('/perfil');
         } catch (error) {
           alert(error.response?.data?.mensaje || 'Error al registrar');
         }

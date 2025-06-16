@@ -41,12 +41,6 @@
           Perfil
         </router-link>
       </li>
-      <li>
-        <router-link to="/historial" @click="closeMenu">
-          <img src="@/assets/img/menu-historial.svg" class="menu-icon" alt="Historial" />
-          Historial
-        </router-link>
-      </li>
     </ul>
   </nav>
 
