@@ -138,9 +138,11 @@
 
 
     <!-- Contact -->
-    <section class="section-light contact">
+    <section class="section-light">
+      <div class="contact">
       <h2>Contacto</h2>
       <p>¿Tienes dudas o sugerencias? Escríbenos a <a href="mailto:info@nutriscan.com">info@nutriscan.com</a>.</p>
-    </section>
+      </div>
+    </section> 
   </main>
 </template>

@@ -56,4 +56,55 @@ router.post('/:id/comment/:commentId/reply', verifyToken, async (req, res) => {
   }
 });
 
+// Eliminar comentario o respuesta (y sus hijos si es comentario principal)
+router.delete('/:id/comment/:commentId', verifyToken, async (req, res) => {
+  const recetaId = req.params.id;
+  const commentId = req.params.commentId;
+  const userId = req.user.id;
+
+  try {
+    const receta = await Recipe.findById(recetaId);
+    if (!receta) return res.status(404).json({ message: 'Receta no encontrada' });
+
+    // Buscar si el comentario a eliminar es principal
+    const comment = receta.comments.id(commentId);
+
+    if (comment) {
+      // Solo puede borrar su propio comentario principal
+      if (comment.user.toString() !== userId) {
+        return res.status(403).json({ message: 'No puedes eliminar este comentario' });
+      }
+      // Elimina el comentario principal (y sus replies)
+      receta.comments.pull({ _id: commentId }); // <-- Cambia esto
+      await receta.save();
+      return res.json({ message: 'Comentario eliminado' });
+    }
+
+    // Si no es principal, buscar si es una respuesta (reply)
+    let replyFound = false;
+    for (const c of receta.comments) {
+      const reply = c.replies.id(commentId);
+      if (reply) {
+        // Solo puede borrar su propia respuesta o si es admin
+        if (reply.user.toString() !== userId && req.user.rol !== 'admin') {
+          return res.status(403).json({ message: 'No puedes eliminar esta respuesta' });
+        }
+        c.replies.pull({ _id: commentId }); // <-- Cambia esto
+        replyFound = true;
+        break;
+      }
+    }
+
+    if (replyFound) {
+      await receta.save();
+      return res.json({ message: 'Respuesta eliminada' });
+    }
+
+    res.status(404).json({ message: 'Comentario o respuesta no encontrada' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error al eliminar comentario' });
+  }
+});
+
 module.exports = router;

@@ -1,30 +1,31 @@
 <template>
   <div class="receta-detalle-container">
-    <h2>{{ receta.name }}</h2>
+    <h2 class="titulo-receta-detalle">{{ receta.name }}</h2>
     <img :src="receta.image" alt="Imagen de la receta" class="receta-image" />
-    <p><strong>Descripción:</strong> {{ receta.description }}</p>
+    <h3 class="titulo-receta-detalle">Descripción:</h3>
+    <p class="descripcion-receta">{{ receta.description }}</p>
 
-    <h3>Ingredientes:</h3>
-    <ul v-if="Array.isArray(receta.ingredients) && receta.ingredients.length">
-      <li v-for="(ingrediente, index) in receta.ingredients" :key="index">
+    <h3 class="titulo-receta-detalle">Ingredientes:</h3>
+    <ul  v-if="Array.isArray(receta.ingredients) && receta.ingredients.length">
+      <li class="ingredientes-receta-detalle" v-for="(ingrediente, index) in receta.ingredients" :key="index">
         {{ ingrediente }}
       </li>
     </ul>
     <p v-else>No se han encontrado ingredientes.</p>
 
-    <h3>Elaboración:</h3>
-    <p>{{ receta.preparation }}</p>
+    <h3 class="titulo-receta-detalle">Elaboración:</h3>
+    <p class="elaboracion-receta">{{ receta.preparation }}</p>
 
     <!-- Solo se muestra la valoración del usuario -->
     <div v-if="tieneToken && datosCargaCompletados" class="valoracion-usuario">
-      <h3>Tu valoración</h3>
+      <h3 class="titulo-receta-detalle">Tu valoración</h3>
       <div class="star-rating-user" @mouseleave="clearHover">
         <span v-for="n in 5" :key="n" class="star" :class="{ filled: n <= (hoverRating || userRating) }"
           @mouseover="setHover(n)" @click.prevent="enviarUserRating(n)">
           ★
         </span>
       </div>
-      <p v-if="userRating > 0">
+      <p class="valoracion-receta" v-if="userRating > 0">
         Has valorado esta receta con {{ userRating }} estrella<span v-if="userRating > 1">s</span>.
       </p>
     </div>
@@ -34,17 +35,54 @@
     </div>
 
     <div>
-      <h3>Comentarios</h3>
-      <ul>
-        <li v-for="comentario in receta.comments" :key="comentario._id">
-          <strong>{{ comentario.username }}</strong>
-          ({{ new Date(comentario.date).toLocaleString() }}):<br />
-          {{ comentario.message }}
+      <h3 class="titulo-receta-detalle">Comentarios</h3>
+      <ul class="comentarios-lista">
+        <li class="ingredientes-receta-detalle" v-for="comentario in receta.comments" :key="comentario._id">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <div>
+              <strong>{{ comentario.username }}</strong>
+              ({{ new Date(comentario.date).toLocaleString() }}):<br />
+              {{ comentario.message }}
+            </div>
+            <div style="position: relative;">
+              <img
+                :src="moreVert"
+                alt="Más opciones"
+                style="cursor: pointer; width: 20px; height: 20px;"
+                @click="toggleMenuComentario(comentario._id)"
+              />
+              <div
+                v-if="menuComentarioAbierto === comentario._id"
+                style="position: absolute; top: 0; left: 100%; background: white; border: 1px solid #ccc; z-index: 10;"
+              >
+                <button class="btn-elimiar-comentario" @click="eliminarComentario(comentario._id)">Eliminar</button>
+              </div>
+            </div>
+          </div>
+
           <ul>
-            <li v-for="reply in comentario.replies" :key="reply._id">
-              <strong>{{ reply.username }}</strong>
-              ({{ new Date(reply.date).toLocaleString() }}):<br />
-              {{ reply.message }}
+            <li class="respuesta" v-for="reply in comentario.replies" :key="reply._id">
+              <div style="display: flex; align-items: center; justify-content: space-between;">
+                <div>
+                  <strong>{{ reply.username }}</strong>
+                  ({{ new Date(reply.date).toLocaleString() }}):<br />
+                  {{ reply.message }}
+                </div>
+                <div style="position: relative;">
+                  <img
+                    :src="moreVert"
+                    alt="Más opciones"
+                    style="cursor: pointer; width: 20px; height: 20px;"
+                    @click="toggleMenuComentario(reply._id)"
+                  />
+                  <div
+                    v-if="menuComentarioAbierto === reply._id"
+                    style="position: absolute; top: 0; left: 100%; background: white; border: 1px solid #ccc; z-index: 10;"
+                  >
+                    <button class="btn-elimiar-comentario" @click="eliminarComentario(reply._id)">Eliminar</button>
+                  </div>
+                </div>
+              </div>
             </li>
           </ul>
           <!-- Formulario para responder -->
@@ -67,6 +105,7 @@
 import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import axios from "axios";
+import moreVert from '@/assets/img/more_vert.svg';
 
 export default {
   name: "RecetaDetalle",
@@ -88,6 +127,7 @@ export default {
     const datosCargaCompletados = ref(false);
     const nuevoComentario = ref("");
     const respuestas = ref<{ [key: string]: string }>({});
+    const menuComentarioAbierto = ref("");
 
     const enviarComentario = async () => {
       const comentario = nuevoComentario.value.trim();
@@ -204,6 +244,23 @@ export default {
       }
     };
 
+    const eliminarComentario = async (comentarioId: string) => {
+      try {
+        await axios.delete(
+          `http://localhost:3000/api/receta/${receta.value._id}/comment/${comentarioId}`,
+          configConToken()
+        );
+        obtenerReceta(); // Recarga los comentarios
+      } catch (error: any) {
+        console.error("Error al eliminar comentario:", error.response?.data || error.message);
+        alert("No tienes permiso para eliminar este comentario.");
+      }
+    };
+
+    function toggleMenuComentario(id: string) {
+      menuComentarioAbierto.value = menuComentarioAbierto.value === id ? "" : id;
+    }
+
     onMounted(() => {
       obtenerReceta();
     });
@@ -221,6 +278,10 @@ export default {
       respuestas,
       enviarComentario,
       responderComentario,
+      eliminarComentario,
+      moreVert,
+      menuComentarioAbierto,
+      toggleMenuComentario,
     };
   },
 };

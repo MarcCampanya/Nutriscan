@@ -104,15 +104,15 @@
 
     <!-- SECCIONES POR TIPO -->
     <div v-for="(recetas, tipo) in recetasPorTipo" :key="tipo" class="seccion-recetas">
-      <h2>{{ tipo.charAt(0).toUpperCase() + tipo.slice(1) }}</h2>
+      <h2 class="tipo-receta">{{ tipo.charAt(0).toUpperCase() + tipo.slice(1) }}</h2>
       <div class="recetas-grid">
         <div v-for="receta in recetas" :key="receta._id" class="receta-card">
           <router-link :to="'/receta/' + receta._id" class="receta-link">
             <img :src="receta.image" alt="Imagen receta" class="receta-img" />
-            <div class="receta-content">
-              <h3>{{ receta.name }}</h3>
+            <div class="tipo-receta">
+              <h3 class="tipo-receta">{{ receta.name }}</h3>
               <div>
-                <span v-for="n in 5" :key="n" class="star" :class="starGlobalClass(receta._id, n)">★</span>
+                <span  v-for="n in 5" :key="n" class="star" :class="starGlobalClass(receta._id, n)">★</span>
                 <span class="rating-text">{{ ratings[receta._id]?.toFixed(1) || 'Sin rating' }}</span>
               </div>
             </div>
@@ -137,13 +137,13 @@
 
     <!-- SECCIONES POR TAGS -->
     <div v-for="(recetas, tag) in recetasPorTag" :key="tag" class="seccion-recetas" v-if="recetas.length">
-      <h2>{{ tag.charAt(0).toUpperCase() + tag.slice(1) }}</h2>
+      <h2 class="tipo-receta">{{ tag.charAt(0).toUpperCase() + tag.slice(1) }}</h2>
       <div class="recetas-grid">
         <div v-for="receta in recetas" :key="receta._id" class="receta-card">
           <router-link :to="'/receta/' + receta._id" class="receta-link">
             <img :src="receta.image" alt="Imagen receta" class="receta-img" />
             <div class="receta-content">
-              <h3>{{ receta.name }}</h3>
+              <h3 class="tipo-receta">{{ receta.name }}</h3>
               <div>
                 <span v-for="n in 5" :key="n" class="star" :class="starGlobalClass(receta._id, n)">★</span>
                 <span class="rating-text">{{ ratings[receta._id]?.toFixed(1) || 'Sin rating' }}</span>
@@ -170,13 +170,13 @@
 
     <!-- SECCIÓN OTROS -->
     <div v-for="(recetas, tipo) in recetasOtros" :key="tipo" class="seccion-recetas" v-if="recetas.length">
-      <h2>{{ tipo.charAt(0).toUpperCase() + tipo.slice(1) }}</h2>
+      <h2 class="tipo-receta">{{ tipo.charAt(0).toUpperCase() + tipo.slice(1) }}</h2>
       <div class="recetas-grid">
         <div v-for="receta in recetas" :key="receta._id" class="receta-card">
           <router-link :to="'/receta/' + receta._id" class="receta-link">
             <img :src="receta.image" alt="Imagen receta" class="receta-img" />
             <div class="receta-content">
-              <h3>{{ receta.name }}</h3>
+              <h3 class="tipo-receta">{{ receta.name }}</h3>
               <div>
                 <span v-for="n in 5" :key="n" class="star" :class="starGlobalClass(receta._id, n)">★</span>
                 <span class="rating-text">{{ ratings[receta._id]?.toFixed(1) || 'Sin rating' }}</span>
