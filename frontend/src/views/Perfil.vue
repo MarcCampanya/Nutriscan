@@ -1,5 +1,5 @@
 <template>
-  <div class="profile-container" style="max-width: 700px; margin: 2rem auto; padding: 2rem; background-color: #f9f9f9; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+  <div class="profile-container" style="max-width: 700px; margin: 60px auto; padding: 2rem; background-color: #f9f9f9; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
     <!-- Header del perfil -->
     <section class="profile-header" style="display: flex; align-items: center; gap: 1.5rem; margin-bottom: 2rem;">
       <div class="avatar-section" style="width: 80px; height: 80px; background-color: #ddd; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
@@ -29,10 +29,35 @@
           <div class="receta-content">
             <h3 @click="irAReceta(receta._id)" style="cursor:pointer">{{ receta.name }}</h3>
           </div>
+
         </div>
       </div>
       <div v-else class="no-resultados" style="color: #888; text-align: center; margin-top: 1rem;">
         No tienes recetas guardadas.
+      </div>
+    </section>
+
+    <!-- Mis Recetas -->
+    <section class="mis-recetas" style="margin-top: 2rem;">
+      <h2 style="font-size: 1.2rem; margin-bottom: 1rem;">Mis Recetas</h2>
+      <div v-if="misRecetas.length" class="recetas-grid">
+        <div
+          v-for="receta in misRecetas"
+          :key="receta._id"
+          class="receta-card"
+        >
+          <img :src="receta.image" alt="Imagen receta" class="receta-img" @click="irAReceta(receta._id)" style="cursor:pointer" />
+          <div class="receta-content">
+            <h3 @click="irAReceta(receta._id)" style="cursor:pointer">{{ receta.name }}</h3>
+          </div>
+          <div class="receta-admin" style="margin-top: 0.5rem;">
+            <button class="btn-editar" @click="editarReceta(receta._id)">Editar</button>
+            <button @click="eliminarReceta(receta._id)" style="margin-left: 0.5rem;">Eliminar</button>
+          </div>
+        </div>
+      </div>
+      <div v-else class="no-resultados" style="color: #888; text-align: center; margin-top: 1rem;">
+        No has subido ninguna receta.
       </div>
     </section>
 
@@ -42,18 +67,26 @@
       <button @click="editProfile" style="padding: 0.5rem 1rem; margin-right: 0.5rem;">Editar Perfil</button>
       <button @click="clearAllData" style="padding: 0.5rem 1rem; background-color: red; color: white;">Borrar Todo</button>
     </section>
+
+    <!-- Botón para cambiar tema -->
+    <button @click="toggleTheme" style="margin-top: 2rem; padding: 0.5rem 1rem;">
+      Cambiar a {{ darkMode ? 'tema claro' : 'tema oscuro' }}
+    </button>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import axios from 'axios'
 import bookmark from '@/assets/img/bookmark.svg'
 import bookmarkAdded from '@/assets/img/bookmark_added.svg'
 
 const user = ref({ nombre: '', correo: '' })
 const recipes = ref([])
+const misRecetas = ref([])
 const router = useRouter()
+const darkMode = ref(false)
 
 function editProfile() {
   alert('Funcionalidad de edición aún no implementada')
@@ -100,8 +133,40 @@ function quitarDeFavoritos(receta) {
   recipes.value = current
 }
 
+const obtenerMisRecetas = async () => {
+  const token = localStorage.getItem('token')
+  const config = { headers: { Authorization: `Bearer ${token}` } }
+  const res = await axios.get('http://localhost:3000/api/receta/mis-recetas', config)
+  misRecetas.value = res.data
+}
+
+const eliminarReceta = async (id) => {
+  if (!confirm('¿Seguro que quieres eliminar esta receta?')) return;
+  const token = localStorage.getItem('token');
+  try {
+    await axios.delete(`http://localhost:3000/api/receta/mis-recetas/${id}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    misRecetas.value = misRecetas.value.filter(r => r._id !== id);
+    alert('Receta eliminada');
+  } catch (error) {
+    alert('Error al eliminar la receta');
+  }
+};
+
+const editarReceta = (id) => {
+  router.push(`/receta/editar/${id}`);
+};
+
+const toggleTheme = () => {
+  darkMode.value = !darkMode.value
+  document.body.classList.toggle('dark-theme', darkMode.value)
+  localStorage.setItem('darkMode', darkMode.value)
+}
+
 onMounted(() => {
   cargarGuardadas()
+  obtenerMisRecetas()
   const token = localStorage.getItem('token')
   if (!token) {
     console.error('Sin token, no hay sesión iniciada')
@@ -135,6 +200,12 @@ onMounted(() => {
     recipes.value = JSON.parse(storedRecipes)
     console.log('Recetas cargadas:', recipes.value)
   }
+
+  const saved = localStorage.getItem('darkMode')
+  if (saved === 'true') {
+    darkMode.value = true
+    document.body.classList.add('dark-theme')
+  }
 })
 
 function starClass(receta, n) {
@@ -146,64 +217,3 @@ function starClass(receta, n) {
   return ''
 }
 </script>
-
-<style scoped>
-.recetas-container {
-  max-width: 900px;
-  margin: 40px auto;
-  padding: 25px;
-  background: #f8f8f8;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-}
-.recetas-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1.5rem;
-}
-.receta-card {
-  background: #fff;
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(66, 140, 98, 0.08);
-  padding: 1rem;
-  width: 220px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  position: relative; /* Necesario para posicionar el botón */
-}
-.btn-guardar {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  z-index: 2;
-  background: rgba(255, 255, 255, 1);
-
-}
-.btn-guardar img {
-  width: 28px;
-  height: 28px;
-}
-.receta-img {
-  width: 100%;
-  height: 120px;
-  object-fit: cover;
-  border-radius: 8px;
-  margin-bottom: 0.7rem;
-}
-.receta-content h3 {
-  margin: 0.5rem 0 1rem 0;
-  color: #055902;
-  font-size: 1.1rem;
-  text-align: center;
-}
-.no-resultados {
-  text-align: center;
-  color: #888;
-  margin-top: 2rem;
-}
-</style>

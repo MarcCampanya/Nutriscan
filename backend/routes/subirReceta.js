@@ -6,7 +6,7 @@ const classifier = require('../utils/clasificador');
 const { ObjectId } = require('mongoose').Types;
 
 // Crear receta
-router.post('/', async (req, res) => {
+router.post('/', verifyToken, async (req, res) => { // <-- Añade verifyToken aquí
     try {
         const { name, description, image, ingredients, preparation } = req.body;
 
@@ -34,7 +34,8 @@ router.post('/', async (req, res) => {
             type,
             difficulty,
             preparationTime,
-            tags
+            tags,
+            user: req.user.id // <-- ¡AQUÍ!
         });
 
         await newRecipe.save();
@@ -57,56 +58,39 @@ router.get('/', async (req, res) => {
 });
 
 // Actualizar receta
-router.put('/:id', verifyToken, requireAdmin, async (req, res) => {
-    const { name, description, image, ingredientsText, preparation } = req.body;
-
+router.put('/:id', verifyToken, async (req, res) => {
     try {
-        const ingredients = ingredientsText
-            ? ingredientsText.split(',').map(i => i.trim()).filter(i => i !== '')
-            : undefined;
+        const receta = await Recipe.findById(req.params.id);
+        if (!receta) return res.status(404).json({ mensaje: 'Receta no encontrada' });
 
-        const updateFields = { name, description, image, preparation };
-        if (ingredients) updateFields.ingredients = ingredients;
-
-        // Recalcular clasificación si hay cambios relevantes
-        if (name || description || preparation || ingredients) {
-            const { type, difficulty, preparationTime, tags, category } = classifier.clasificarReceta({
-                titulo: name || '',
-                descripcion: `${description || ''} ${preparation || ''}`,
-                ingredientes: ingredients || [] // Si el clasificador espera 'ingredientes', déjalo así
-            });
-            Object.assign(updateFields, { type, difficulty, preparationTime, tags, category });
+        // Permitir solo si eres admin o el creador
+        if (receta.user.toString() !== req.user.id && req.user.rol !== 'admin') {
+            return res.status(403).json({ mensaje: 'No tienes permiso para editar esta receta' });
         }
 
-        const receta = await Recipe.findByIdAndUpdate(req.params.id, updateFields, { new: true });
+        Object.assign(receta, req.body);
+        const recetaActualizada = await receta.save();
 
-        if (!receta) {
-            return res.status(404).json({ mensaje: 'Receta no encontrada' });
-        }
-
-        res.json(receta);
+        res.json(recetaActualizada);
     } catch (error) {
-        console.error(error);
         res.status(500).json({ mensaje: 'Error al editar la receta' });
     }
 });
 
 // Eliminar receta
-router.delete('/:id', verifyToken, requireAdmin, async (req, res) => {
-    const recetaId = req.params.id;
-    if (!ObjectId.isValid(recetaId)) {
-        return res.status(400).json({ mensaje: 'ID inválido' });
-    }
-
+router.delete('/:id', verifyToken, async (req, res) => {
     try {
-        const receta = await Recipe.findByIdAndDelete(recetaId);
-        if (!receta) {
-            return res.status(404).json({ mensaje: 'Receta no encontrada' });
+        const receta = await Recipe.findById(req.params.id);
+        if (!receta) return res.status(404).json({ mensaje: 'Receta no encontrada' });
+
+        // Permitir solo si eres admin o el creador
+        if (receta.user.toString() !== req.user.id && req.user.rol !== 'admin') {
+            return res.status(403).json({ mensaje: 'No tienes permiso para eliminar esta receta' });
         }
 
+        await receta.deleteOne();
         res.json({ mensaje: 'Receta eliminada exitosamente' });
     } catch (error) {
-        console.error('Error al eliminar la receta:', error);
         res.status(500).json({ mensaje: 'Error al eliminar la receta' });
     }
 });

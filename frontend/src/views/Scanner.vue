@@ -124,17 +124,3 @@ export default {
   },
 };
 </script>
-
-<style scoped>
-/* Asegurarnos de que el video ocupe el espacio necesario */
-video {
-  width: 100%;
-  /* Ajustar al ancho del contenedor */
-  height: auto;
-  /* Mantener la relación de aspecto */
-  border: 1px solid #ddd;
-  /* Bordes visibles para mejor experiencia visual */
-  background-color: black;
-  /* Fondo negro para cuando la cámara no está disponible */
-}
-</style>

@@ -28,8 +28,9 @@ const recipeSchema = new mongoose.Schema({
   image:       { type: String, required: true },
   ingredients: { type: [String], required: true },
   preparation: { type: String, required: true },
+  user:        { type: mongoose.Schema.Types.ObjectId, ref: 'Usuario', required: true }, // <-- Añade aquí
   ratings:     [ratingSchema],
-  comments:    [commentSchema] // <-- Añade esta línea
+  comments:    [commentSchema]
 });
 
 // Virtual para obtener el promedio de ratings

@@ -61,6 +61,17 @@ router.get('/', extractUser, async (req, res) => {
   }
 });
 
+// Primero rutas específicas
+router.get('/mis-recetas', verifyToken, async (req, res) => {
+  try {
+    const recetas = await Receta.find({ user: req.user.id });
+    res.json(recetas);
+  } catch (error) {
+    res.status(500).json({ message: 'Error al obtener tus recetas' });
+  }
+});
+
+// Después la ruta por ID
 // GET /api/receta/:id
 // Detalle de una sola receta, con averageRating y userRating si hay token
 router.get('/:id', extractUser, async (req, res) => {
@@ -152,6 +163,37 @@ router.put('/:id', verifyToken, requireAdmin, async (req, res) => {
     res.json(receta);
   } catch (error) {
     res.status(500).json({ msg: 'Error al actualizar la receta.' });
+  }
+});
+
+// Editar una receta propia (sin comprobar propietario, solo por ID y autenticación)
+router.put('/mis-recetas/:id', verifyToken, async (req, res) => {
+  try {
+    console.log('Intentando editar receta:', req.params.id, 'por usuario:', req.user.id);
+    const receta = await Receta.findOne({ _id: req.params.id, user: req.user.id });
+    if (!receta) {
+      console.log('Receta no encontrada o no es del usuario');
+      return res.status(404).json({ mensaje: 'Receta no encontrada o no es tuya' });
+    }
+    Object.assign(receta, req.body);
+    const recetaActualizada = await receta.save();
+    res.json(recetaActualizada);
+  } catch (error) {
+    console.error('Error en backend al editar receta:', error);
+    res.status(500).json({ mensaje: 'Error al editar tu receta' });
+  }
+});
+
+// Eliminar una receta propia
+router.delete('/mis-recetas/:id', verifyToken, async (req, res) => {
+  try {
+    // Solo busca recetas del usuario autenticado
+    const receta = await Receta.findOneAndDelete({ _id: req.params.id, user: req.user.id });
+    if (!receta) return res.status(404).json({ mensaje: 'Receta no encontrada o no es tuya' });
+
+    res.json({ mensaje: 'Receta eliminada exitosamente' });
+  } catch (error) {
+    res.status(500).json({ mensaje: 'Error al eliminar tu receta' });
   }
 });
 

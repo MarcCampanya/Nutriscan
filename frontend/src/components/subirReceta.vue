@@ -74,7 +74,22 @@ export default {
                     ingredients: nuevaReceta.value.ingredients
                 };
 
-                await axios.post('http://localhost:3000/api/subirReceta', recetaAEnviar);
+                // OBTENER TOKEN
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    alert('Debes iniciar sesión para subir una receta.');
+                    return;
+                }
+
+                await axios.post(
+                    'http://localhost:3000/api/subirReceta',
+                    recetaAEnviar,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`
+                        }
+                    }
+                );
                 router.push('/recetas');
             } catch (error: any) {
                 console.error('Error al subir receta:', error.response?.data || error);

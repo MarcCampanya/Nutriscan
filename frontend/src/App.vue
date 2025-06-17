@@ -14,9 +14,3 @@ export default defineComponent({
   },
 });
 </script>
-
-<style>
-*{
-      font-family: "Helvetica Neue";
-}
-</style>
