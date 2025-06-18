@@ -213,38 +213,62 @@ class RecipeClassifier {
   constructor() {
     // Palabras clave para clasificación por tipo
     this.tipoKeywords = {
-      desayuno: ['desayuno', 'desayunar', 'tostada', 'cereales', 'avena', 'pancake', 'tortita', 'zumo', 'café', 'té', 'croissant', 'muesli', 'yogur', 'granola', 'Smoothie'],
-      almuerzo: ['almuerzo', 'ensalada', 'sopa', 'sandwich', 'bocadillo', 'pasta', 'arroz', 'pollo', 'pescado', 'carne'],
-      cena: ['cena', 'pizza', 'lasaña', 'guiso', 'estofado', 'asado', 'paella', 'risotto', 'filete', 'salmón'],
-      postre: ['postre', 'tarta', 'pastel', 'flan', 'helado', 'chocolate', 'galleta', 'brownie', 'mousse', 'tiramisú', 'crema', 'dulce'],
-      snack: ['snack', 'aperitivo', 'tapas', 'patatas', 'nachos', 'frutos secos', 'palomitas', 'chips'],
-      bebida: ['bebida', 'batido', 'smoothie', 'zumo', 'limonada', 'té', 'café', 'cóctel', 'infusión']
+      desayuno: [
+        'desayuno', 'desayunar', 'tostada', 'pan', 'bollería', 'croissant', 'brioche', 'magdalena',
+        'cereales', 'avena', 'granola', 'muesli', 'porridge', 'yogur', 'smoothie', 'batido',
+        'pancake', 'tortita', 'waffle', 'tostadas francesas', 'omelette', 'revuelto', 'huevos',
+        'bagel', 'smoothiebowl', 'granizado', 'fruta fresca', 'compota', 'chia pudding'
+      ],
+      almuerzo: [ 
+        'almuerzo', 'ensalada', 'sopa', 'crema', 'gazpacho', 'sandwich', 'bocadillo', 'wrap', 'tortilla',
+        'quiche', 'pasta', 'lasagna', 'arroz', 'paella', 'curry', 'chili', 'casera', 'pisto', 'guiso',
+        'salteado', 'pollo', 'ternera', 'cerdo', 'pescado', 'marisco', 'hamburguesa', 'tacos', 'falafel',
+        'buddha bowl', 'poke bowl', 'biryani'
+      ],
+      cena: [
+        'cena', 'pizza', 'lasaña', 'guiso', 'estofado', 'asado', 'rostizado', 'paella', 'risotto',
+        'filete', 'salmón', 'tofu', 'verduras asadas', 'salteado', 'cazuela', 'tarta salada', 'hamburguesa',
+        'tortilla', 'empanada', 'tacos', 'fondue', 'barbacoa', 'ceviche'
+      ],
+      postre: [
+        'postre', 'dulce', 'tarta', 'pastel', 'bizcocho', 'flan', 'pudín', 'helado', 'sorbete', 'chocolate',
+        'brownie', 'galleta', 'mousse', 'tiramisú', 'crema', 'panna cotta', 'cheesecake', 'cupcake',
+        'macaron', 'merengue', 'trufas', 'torrija', 'crepes', 'crumble', 'fondant'
+      ],
+      snack: [
+        'snack', 'aperitivo', 'tapas', 'pinchos', 'bocadito', 'patatas', 'nachos', 'chips', 'frutos secos',
+        'almendras', 'nueces', 'pistachos', 'palomitas', 'golosinas', 'barrita energética', 'barra de granola',
+        'hummus', 'crudités', 'dip', 'antipasto'
+      ],
+      bebida: [
+        'bebida', 'refresco', 'batido', 'smoothie', 'zumo', 'jugo', 'limonada', 'naranjada', 'té', 'café',
+        'cóctel', 'mocktail', 'infusión', 'chocolate caliente', 'matcha', 'kombucha', 'aguas frescas',
+        'horchata', 'vino', 'cerveza', 'sidra', 'limonada casera', 'batido proteico'
+      ]
     };
 
-    // Palabras clave para dificultad
     this.dificultadKeywords = {
       fácil: ['fácil', 'simple', 'rápido', 'básico', 'sencillo', 'sin cocinar', 'mezclar', '5 minutos', '10 minutos'],
       medio: ['medio', 'moderado', 'hornear', 'freír', 'saltear', '30 minutos', '45 minutos', 'cocinar'],
-      difícil: ['difícil', 'complejo', 'elaborado', 'técnica', 'professional', 'horas', '2 horas', 'fermentar', 'glasear']
+      difícil: ['difícil', 'complejo', 'elaborado', 'técnica', 'profesional', 'horas', '2 horas', 'fermentar', 'glasear']
     };
 
-    // Ingredientes que indican características especiales
     this.dietaKeywords = {
       vegetariano: {
-        include: ['verduras', 'vegetales', 'queso', 'huevo', 'leche', 'yogur', 'legumbres', 'tofu'],
+        include: ['verduras', 'vegetales', 'queso', 'huevo', 'leche', 'yogur', 'legumbres', 'tofu', 'setas', 'frutos secos'],
         exclude: ['carne', 'pollo', 'pescado', 'jamón', 'bacon', 'chorizo', 'ternera', 'cerdo', 'pavo', 'atún', 'salmón', 'anchoas']
       },
       vegano: {
-        include: ['verduras', 'vegetales', 'legumbres', 'tofu', 'leche de avena', 'leche de almendra', 'leche de coco'],
+        include: ['verduras', 'vegetales', 'legumbres', 'tofu', 'leche de avena', 'leche de almendra', 'leche de coco', 'frutas', 'semillas'],
         exclude: ['carne', 'pollo', 'pescado', 'huevo', 'leche', 'queso', 'yogur', 'mantequilla', 'miel', 'jamón', 'bacon']
       },
       sinGluten: {
-        exclude: ['harina', 'trigo', 'pan', 'pasta', 'avena', 'cebada', 'centeno', 'sémola', 'gluten'],
-        include: ['harina de arroz', 'harina de almendra', 'sin gluten', 'quinoa', 'arroz']
+        include: ['harina de arroz', 'harina de almendra', 'sin gluten', 'quinoa', 'arroz', 'mijo'],
+        exclude: ['harina', 'trigo', 'pan', 'pasta', 'avena', 'cebada', 'centeno', 'sémola', 'gluten']
       },
       sinLactosa: {
-        exclude: ['leche', 'queso', 'yogur', 'mantequilla', 'nata', 'crema', 'lactosa'],
-        include: ['leche de avena', 'leche de almendra', 'leche de coco', 'sin lactosa']
+        include: ['leche de avena', 'leche de almendra', 'leche de coco', 'sin lactosa', 'crema vegetal'],
+        exclude: ['leche', 'queso', 'yogur', 'mantequilla', 'nata', 'crema', 'lactosa']
       }
     };
   }

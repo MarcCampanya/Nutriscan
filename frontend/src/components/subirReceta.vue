@@ -107,6 +107,7 @@ export default {
 .upload-form-container {
     max-width: 600px;
     margin: 30px auto;
+    margin-top: 80px;
     padding: 25px;
     background: #f8f8f8;
     border-radius: 10px;
