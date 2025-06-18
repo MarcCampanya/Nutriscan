@@ -1261,6 +1261,14 @@ button[type="submit"]:hover {
     --section-text-light: #222;
 }
 
+.buscador-input {
+    color: black;
+}
+
+.dark-theme .buscador-input {
+    color: white;
+}
+
 .dark-theme {
     /* === FONDOS === */
     --bg-color: #0a0f0a;

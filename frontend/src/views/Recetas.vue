@@ -12,8 +12,8 @@
     <!-- Barra de búsqueda -->
     <div class="search-bar">
       <div class="search-input-container">
-        <input v-model="search" type="text" placeholder="Buscar por ingrediente, nombre o tipo de receta..."
-          @input="filtrarRecetas" />
+        <input class="buscador-input" v-model="search" type="text"
+          placeholder="Buscar por ingrediente, nombre o tipo de receta..." @input="filtrarRecetas" />
         <button class="btn-filtros" @click="toggleFiltros" :class="{ active: mostrarFiltros }">
           <!-- SVG de filtros (reemplaza con tu SVG) -->
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -47,7 +47,7 @@
             </select>
           </div>
 
-          <div class="filtro-grupo">
+          <!--         <div class="filtro-grupo">
             <label for="dificultad">Dificultad</label>
             <select v-model="filtros.dificultad" id="dificultad" @change="aplicarFiltros">
               <option value="">Todas</option>
@@ -57,11 +57,13 @@
             </select>
           </div>
 
-          <div class="filtro-grupo">
-            <label for="tiempo">Tiempo máximo (min)</label>
-            <input type="number" v-model="filtros.tiempo" id="tiempo" @input="aplicarFiltros" min="1"
-              placeholder="30" />
-          </div>
+          
+<div class="filtro-grupo">
+  <label for="tiempo">Tiempo máximo (min)</label>
+  <input type="number" v-model="filtros.tiempo" id="tiempo" @input="aplicarFiltros" min="1"
+    placeholder="30" />
+</div>
+-->
 
           <div class="filtro-grupo">
             <label for="rating">Puntuación mínima</label>
@@ -219,7 +221,7 @@ class RecipeClassifier {
         'pancake', 'tortita', 'waffle', 'tostadas francesas', 'omelette', 'revuelto', 'huevos',
         'bagel', 'smoothiebowl', 'granizado', 'fruta fresca', 'compota', 'chia pudding'
       ],
-      almuerzo: [ 
+      almuerzo: [
         'almuerzo', 'ensalada', 'sopa', 'crema', 'gazpacho', 'sandwich', 'bocadillo', 'wrap', 'tortilla',
         'quiche', 'pasta', 'lasagna', 'arroz', 'paella', 'curry', 'chili', 'casera', 'pisto', 'guiso',
         'salteado', 'pollo', 'ternera', 'cerdo', 'pescado', 'marisco', 'hamburguesa', 'tacos', 'falafel',
