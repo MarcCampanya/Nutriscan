@@ -82,12 +82,16 @@ export default defineComponent({
     handleLogout() {
       localStorage.removeItem('token');
       this.isAuthenticated = false;
+      this.setTemaBlanco();
       this.$router.push('/'); // Redirige al home tras cerrar sesión
     },
     closeMenu() {
       const sideMenu = document.querySelector(".side-menu");
       sideMenu?.classList.remove("open");
     },
+    setTemaBlanco() {
+      document.body.classList.remove('dark-theme');
+    }
   },
   watch: {
     // Cuando la ruta cambie, verificamos el estado de autenticación nuevamente
@@ -98,11 +102,16 @@ export default defineComponent({
 <style scoped>
 /* Barra superior */
 .top-bar {
-  position: fixed;         /* <-- Añade esta línea */
-  top: 0;                  /* <-- Añade esta línea */
-  left: 0;                 /* <-- Añade esta línea */
-  width: 100%;             /* <-- Añade esta línea */
-  z-index: 1100;           /* <-- Añade esta línea para que esté sobre el menú lateral */
+  position: fixed;
+  /* <-- Añade esta línea */
+  top: 0;
+  /* <-- Añade esta línea */
+  left: 0;
+  /* <-- Añade esta línea */
+  width: 100%;
+  /* <-- Añade esta línea */
+  z-index: 1100;
+  /* <-- Añade esta línea para que esté sobre el menú lateral */
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -193,6 +202,7 @@ export default defineComponent({
   background-color: #428C62;
   transform: translateX(5px);
 }
+
 .logo a {
   color: white;
   font-weight: bold;
@@ -201,6 +211,7 @@ export default defineComponent({
 }
 
 .logo a:hover {
-  color: #88BFA0; /* color verde claro al pasar el mouse */
+  color: #88BFA0;
+  /* color verde claro al pasar el mouse */
 }
 </style>

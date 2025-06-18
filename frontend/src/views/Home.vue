@@ -41,7 +41,7 @@
     <section class="section-dark">
       <div class="container container-reverse">
         <div class="image-third">
-          <img src="https://images.unsplash.com/photo-1582719478183-0ecb154c22b3?auto=format&fit=crop&w=600&q=80"
+          <img src="../assets/img/scanner.png"
             alt="Escaneo de código de barras" />
         </div>
         <div class="text-two-thirds">

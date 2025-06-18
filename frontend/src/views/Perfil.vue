@@ -199,7 +199,6 @@ onMounted(() => {
     const data = JSON.parse(storedUser)
     user.value.nombre = data.nombre
     user.value.correo = data.correo
-    console.log('Usuario cargado:', user.value)
   }
 
   const storedRecipes = localStorage.getItem(recipesKey)
@@ -207,7 +206,6 @@ onMounted(() => {
     console.warn(`No hay recetas guardadas para usuario ${id}`)
   } else {
     recipes.value = JSON.parse(storedRecipes)
-    console.log('Recetas cargadas:', recipes.value)
   }
 })
 </script>

@@ -136,9 +136,6 @@ export default {
         return;
       }
 
-      console.log("Enviando comentario:", comentario);
-      console.log("Token usado:", obtenerToken());
-
       try {
         await axios.post(
           `http://localhost:3000/api/receta/${receta.value._id}/comment`,
@@ -149,6 +146,7 @@ export default {
         obtenerReceta();
       } catch (error: any) {
         console.error("Error al enviar comentario:", error.response?.data || error.message);
+        alert("Inicia sesión para comentar.");
       }
     };
 
@@ -195,8 +193,8 @@ export default {
           : await axios.get(`http://localhost:3000/api/receta/${id}`);
 
         const data = response.data;
-        console.log("Receta obtenida:", data);
 
+        
         receta.value._id = data._id;
         receta.value.name = data.name;
         receta.value.description = data.description;

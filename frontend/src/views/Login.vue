@@ -46,25 +46,19 @@ export default {
 
         // 1) Guardar token
         localStorage.setItem('token', respuesta.data.token)
-        console.log('Token guardado:', respuesta.data.token)
 
         // 2) Guardar datos del usuario
         const usuario = respuesta.data.usuario
-        console.log('Objeto usuario recibido:', usuario)
-
-        // IMPORTANTE: aquí usamos usuario.id
         const key = `user_${usuario.id}`
         localStorage.setItem(key, JSON.stringify({
           nombre: usuario.nombre,
           correo: usuario.correo
         }))
-        console.log(`Datos de usuario guardados en "${key}" =>`, {
-          nombre: usuario.nombre,
-          correo: usuario.correo
-        })
 
-        // 3) Redirigir al perfil
-        this.$router.push('/perfil')
+        // 3) Redirigir al perfil y recargar la página
+        this.$router.push('/perfil').then(() => {
+          window.location.reload()
+        })
       } catch (error) {
         console.error('Error en handleLogin:', error)
         alert(error.response?.data?.mensaje || 'Error al iniciar sesión')

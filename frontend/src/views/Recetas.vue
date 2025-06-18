@@ -112,7 +112,7 @@
             <div class="tipo-receta">
               <h3 class="tipo-receta">{{ receta.name }}</h3>
               <div>
-                <span  v-for="n in 5" :key="n" class="star" :class="starGlobalClass(receta._id, n)">★</span>
+                <span v-for="n in 5" :key="n" class="star" :class="starGlobalClass(receta._id, n)">★</span>
                 <span class="rating-text">{{ ratings[receta._id]?.toFixed(1) || 'Sin rating' }}</span>
               </div>
             </div>
@@ -213,8 +213,8 @@ class RecipeClassifier {
   constructor() {
     // Palabras clave para clasificación por tipo
     this.tipoKeywords = {
-      desayuno: ['desayuno', 'tostada', 'cereales', 'avena', 'pancake', 'tortita', 'zumo', 'café', 'té', 'croissant', 'muesli', 'yogur', 'granola'],
-      almuerzo: ['almuerzo', 'comida', 'ensalada', 'sopa', 'sandwich', 'bocadillo', 'pasta', 'arroz', 'pollo', 'pescado', 'carne'],
+      desayuno: ['desayuno', 'desayunar', 'tostada', 'cereales', 'avena', 'pancake', 'tortita', 'zumo', 'café', 'té', 'croissant', 'muesli', 'yogur', 'granola', 'Smoothie'],
+      almuerzo: ['almuerzo', 'ensalada', 'sopa', 'sandwich', 'bocadillo', 'pasta', 'arroz', 'pollo', 'pescado', 'carne'],
       cena: ['cena', 'pizza', 'lasaña', 'guiso', 'estofado', 'asado', 'paella', 'risotto', 'filete', 'salmón'],
       postre: ['postre', 'tarta', 'pastel', 'flan', 'helado', 'chocolate', 'galleta', 'brownie', 'mousse', 'tiramisú', 'crema', 'dulce'],
       snack: ['snack', 'aperitivo', 'tapas', 'patatas', 'nachos', 'frutos secos', 'palomitas', 'chips'],
@@ -586,7 +586,6 @@ export default {
         // Actualizar localmente
         Object.assign(receta, clasificacion);
 
-        console.log(`Receta "${receta.name}" actualizada con IA:`, clasificacion);
 
       } catch (error) {
         console.error('Error al actualizar receta con IA:', error);
@@ -692,7 +691,6 @@ export default {
       this.$router.push({ name: 'EditarReceta', params: { id } });
     },
     async eliminarReceta(recetaId) {
-                        console.log(recetaId)
 
       if (!confirm('¿Estás seguro de que deseas eliminar esta receta?')) return;
       try {
