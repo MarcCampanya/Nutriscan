@@ -26,7 +26,7 @@
       <li>
         <router-link to="/scanner" @click="closeMenu">
           <img src="@/assets/img/menu-scanner.svg" class="menu-icon" alt="Scanner" />
-          Scanner
+          Escáner
         </router-link>
       </li>
       <li>

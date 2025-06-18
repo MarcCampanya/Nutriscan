@@ -3,29 +3,20 @@
     <!-- Header del perfil -->
     <section class="profile-header">
       <div class="avatar-section">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" width="40" height="40" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" width="40" height="40"
+          viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
         </svg>
       </div>
       <div class="user-info">
         <h1>{{ user.nombre }}</h1>
         <p>{{ user.correo }}</p>
       </div>
-      <button class="btn-tema" @click="toggleTheme" :aria-label="darkMode ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'">
-        <img
-          v-if="!darkMode"
-          :src="lightModeIcon"
-          alt="Tema claro"
-          class="icon-tema"
-          key="light"
-        />
-        <img
-          v-else
-          :src="darkModeIcon"
-          alt="Tema oscuro"
-          class="icon-tema"
-          key="dark"
-        />
+      <button class="btn-tema" @click="toggleTheme"
+        :aria-label="darkMode ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'">
+        <img v-if="!darkMode" :src="lightModeIcon" alt="Tema claro" class="icon-tema" key="light" />
+        <img v-else :src="darkModeIcon" alt="Tema oscuro" class="icon-tema" key="dark" />
       </button>
     </section>
 
@@ -67,6 +58,18 @@
         No has subido ninguna receta.
       </div>
     </section>
+
+    <section class="mis-recetas" v-if="history.length">
+      <h2>Historial de Escaneos</h2>
+      <ul class="history-list">
+        <li v-for="item in history" :key="item.fecha" class="history-item">
+          <a :href="item.url" target="_blank">
+            {{ item.descripcion }}
+            <span class="fecha">{{ formatearFecha(item.fecha) }}</span>
+          </a>
+        </li>
+      </ul>
+    </section>
   </div>
 </template>
 
@@ -74,7 +77,6 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
-import bookmark from '@/assets/img/bookmark.svg'
 import bookmarkAdded from '@/assets/img/bookmark_added.svg'
 import lightModeIcon from '@/assets/img/light_mode.svg'
 import darkModeIcon from '@/assets/img/dark_mode.svg'
@@ -84,18 +86,8 @@ const recipes = ref([])
 const misRecetas = ref([])
 const router = useRouter()
 const darkMode = ref(false)
+const history = ref([]);
 
-function editProfile() {
-  alert('Funcionalidad de edición aún no implementada')
-}
-
-function clearAllData() {
-  if (confirm('¿Estás seguro de que quieres borrar todos tus datos?')) {
-    localStorage.clear()
-    alert('Datos borrados. Recarga la página.')
-    location.reload()
-  }
-}
 
 function cargarGuardadas() {
   const token = localStorage.getItem('token')
@@ -155,16 +147,6 @@ const editarReceta = (id) => {
   router.push(`/receta/editar/${id}`);
 };
 
-// Obtén el id del usuario desde el token
-function getUserId() {
-  const token = localStorage.getItem('token')
-  if (!token) return null
-  try {
-    return JSON.parse(atob(token.split('.')[1])).id
-  } catch {
-    return null
-  }
-}
 
 // Al cambiar el tema:
 const toggleTheme = () => {
@@ -172,8 +154,15 @@ const toggleTheme = () => {
   document.body.classList.toggle('dark-theme', darkMode.value)
   localStorage.setItem('darkMode', darkMode.value)
 }
+function formatearFecha(iso) {
+  return new Date(iso).toLocaleString('es-ES', {
+    day: '2-digit', month: 'short', year: 'numeric',
+    hour: '2-digit', minute: '2-digit'
+  });
+}
 
 onMounted(() => {
+  history.value = JSON.parse(localStorage.getItem('scanHistory') || '[]');
   cargarGuardadas()
   obtenerMisRecetas()
   const token = localStorage.getItem('token')
@@ -211,5 +200,58 @@ onMounted(() => {
 </script>
 
 <style scoped>
+/* Historial de Escaneos */
+.scan-history {
+  margin-top: 2.5rem;
+}
 
+.scan-history h2 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--verde-medio);
+  margin-bottom: 1rem;
+}
+
+.history-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+  padding: 0;
+  list-style: none;
+}
+
+.history-item {
+  background: var(--card-bg);
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.history-item:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+}
+
+.history-item a {
+  display: block;
+  color: var(--text-color);
+  text-decoration: none;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.history-item a span.fecha {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.no-history {
+  margin-top: 2rem;
+  color: var(--text-secondary);
+  font-size: 1rem;
+}
 </style>

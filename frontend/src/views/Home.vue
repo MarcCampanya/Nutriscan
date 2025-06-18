@@ -41,8 +41,7 @@
     <section class="section-dark">
       <div class="container container-reverse">
         <div class="image-third">
-          <img src="../assets/img/scanner.png"
-            alt="Escaneo de código de barras" />
+          <img src="../assets/img/scanner.png" alt="Escaneo de código de barras" />
         </div>
         <div class="text-two-thirds">
           <h2>Escanea productos</h2>
@@ -136,13 +135,13 @@
       </div>
     </section>
 
-
-    <!-- Contact -->
     <section class="section-light">
-      <div class="contact">
-      <h2>Contacto</h2>
-      <p>¿Tienes dudas o sugerencias? Escríbenos a <a href="mailto:info@nutriscan.com">info@nutriscan.com</a>.</p>
+      <div class="container">
+        <div class="text-two-thirds">
+          <h2>Contacto</h2>
+          <p>¿Tienes dudas o sugerencias? Escríbenos a <a href="mailto:info@nutriscan.com">info@nutriscan.com</a>.</p>
+        </div>
       </div>
-    </section> 
+    </section>
   </main>
 </template>
