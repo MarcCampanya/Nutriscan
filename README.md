@@ -69,65 +69,76 @@ Before you begin, ensure you have the following installed on your machine:
 1. Clone the repository:
    ```bash
    git clone [https://github.com/MarcCampanya/Nutriscan.git](https://github.com/MarcCampanya/Nutriscan.git)
-   Navigate to the project directory:
+   ```
 
-Bash
-cd Nutriscan
-Set up your environment variables (Create a .env file in the root or backend folder as needed):
+2. Navigate to the project directory:
+   ```bash
+   cd Nutriscan
+   ```
 
-Fragmento de código
-VITE_API_KEY=your_api_key_here
-MONGO_URI=your_database_uri
-Install the frontend dependencies:
+3. Set up your environment variables (Create a `.env` file in the root or backend folder as needed):
+   ```env
+   VITE_API_KEY=your_api_key_here
+   MONGO_URI=your_database_uri
+   ```
 
-Bash
-cd frontend
-npm install
-Install the backend dependencies (if applicable):
+4. Install the frontend dependencies:
+   ```bash
+   cd frontend
+   npm install
+   ```
 
-Bash
-cd ../backend
-npm install
-🏃‍♂️ Running the Project
-To run the full application locally, you will need to start the database, the backend, and the frontend. Open three separate terminal windows and follow these steps:
+5. Install the backend dependencies:
+   ```bash
+   cd ../backend
+   npm install
+   ```
 
-1. Start the Database / Services (Docker)
+### 🏃‍♂️ Running the Project
+
+To run the full application locally, you will need to start the database, the backend, and the frontend. **Open three separate terminal windows** and follow these steps:
+
+**1. Start the Database / Services (Docker)**  
 From the root directory of the project (Nutriscan), start your Docker containers:
+   ```bash
+   docker compose up -d
+   ```
 
-Bash
-docker compose up -d
-(Note: The -d flag runs the containers in the background so you can keep using the terminal).
-
-2. Start the Backend
+**2. Start the Backend**  
 Navigate to the backend directory and start the server:
+   ```bash
+   cd backend
+   node server.js
+   ```
 
-Bash
-cd backend
-node server.js
-3. Start the Frontend
+**3. Start the Frontend**  
 Navigate to the frontend directory and run the development server:
+   ```bash
+   cd frontend
+   npm run dev
+   ```
 
-Bash
-cd frontend
-npm run dev
+---
 
-🤝 Contributing
-Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are greatly appreciated.
+## 🤝 Contributing
 
-Fork the Project
+Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
 
-Create your Feature Branch (git checkout -b feature/AmazingFeature)
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-Commit your Changes (git commit -m 'Add some AmazingFeature')
+---
 
-Push to the Branch (git push origin feature/AmazingFeature)
+## 👨‍💻 Author
 
-Open a Pull Request
+**Marc Campanya**  
+GitHub: [@MarcCampanya](https://github.com/MarcCampanya)
 
-👨‍💻 Author
-Marc Campanya
+---
 
-GitHub: @MarcCampanya
+## 📝 License
 
-📝 License
-Distributed under the MIT License. See LICENSE for more information.
+Distributed under the MIT License. See `LICENSE` for more information.
