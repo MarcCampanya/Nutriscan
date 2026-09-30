@@ -138,7 +138,3 @@ Contributions are what make the open source community such an amazing place to l
 GitHub: [@MarcCampanya](https://github.com/MarcCampanya)
 
 ---
-
-## 📝 License
-
-Distributed under the MIT License. See `LICENSE` for more information.
