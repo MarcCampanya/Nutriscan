@@ -29,7 +29,7 @@
 
 ## 📖 About The Project
 
-**Nutriscan** is a [web/mobile - ELIGE UNO] application designed to help users easily access and understand the nutritional value of their food. Whether you are tracking your daily macros, checking for specific allergens, or just trying to eat healthier, Nutriscan provides a fast and intuitive user interface to get the data you need.
+**Nutriscan** is a web application designed to help users easily access and understand the nutritional value of their food. Whether you are tracking your daily macros, checking for specific allergens, or just trying to eat healthier, Nutriscan provides a fast and intuitive user interface to get the data you need.
 
 ### ✨ Features
 
@@ -56,11 +56,78 @@ This project was built using modern web technologies to ensure optimal performan
 
 ## 🚀 Getting Started
 
-To get a local copy up and running, follow these simple steps.
+To get a local copy up and running, follow these steps.
 
-### Prerequisites
+### 📋 Prerequisites
 
-Make sure you have Node.js and npm installed on your machine.
-* npm
-  ```sh
-  npm install npm@latest -g
+Before you begin, ensure you have the following installed on your machine:
+* **Node.js & npm:** [Download and install](https://nodejs.org/)
+* **Docker & Docker Compose:** [Download and install](https://www.docker.com/products/docker-desktop)
+
+### ⚙️ Installation
+
+1. Clone the repository:
+   ```bash
+   git clone [https://github.com/MarcCampanya/Nutriscan.git](https://github.com/MarcCampanya/Nutriscan.git)
+   Navigate to the project directory:
+
+Bash
+cd Nutriscan
+Set up your environment variables (Create a .env file in the root or backend folder as needed):
+
+Fragmento de código
+VITE_API_KEY=your_api_key_here
+MONGO_URI=your_database_uri
+Install the frontend dependencies:
+
+Bash
+cd frontend
+npm install
+Install the backend dependencies (if applicable):
+
+Bash
+cd ../backend
+npm install
+🏃‍♂️ Running the Project
+To run the full application locally, you will need to start the database, the backend, and the frontend. Open three separate terminal windows and follow these steps:
+
+1. Start the Database / Services (Docker)
+From the root directory of the project (Nutriscan), start your Docker containers:
+
+Bash
+docker compose up -d
+(Note: The -d flag runs the containers in the background so you can keep using the terminal).
+
+2. Start the Backend
+Navigate to the backend directory and start the server:
+
+Bash
+cd backend
+node server.js
+3. Start the Frontend
+Navigate to the frontend directory and run the development server:
+
+Bash
+cd frontend
+npm run dev
+
+🤝 Contributing
+Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are greatly appreciated.
+
+Fork the Project
+
+Create your Feature Branch (git checkout -b feature/AmazingFeature)
+
+Commit your Changes (git commit -m 'Add some AmazingFeature')
+
+Push to the Branch (git push origin feature/AmazingFeature)
+
+Open a Pull Request
+
+👨‍💻 Author
+Marc Campanya
+
+GitHub: @MarcCampanya
+
+📝 License
+Distributed under the MIT License. See LICENSE for more information.
